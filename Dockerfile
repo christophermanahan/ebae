@@ -1,6 +1,6 @@
 # ./Dockerfile
 
-FROM elixir:latest
+FROM elixir:1.8.1
 
 RUN apt-get update && \
   apt-get install -y postgresql-client && \

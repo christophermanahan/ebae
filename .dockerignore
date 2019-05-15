@@ -1,6 +1,7 @@
 # .dockerignore
 .git
 .gitignore
+.circleci
 Dockerrun.aws.json
 
 # Mix artifacts
@@ -14,3 +15,4 @@ erl_crash.dump
 # Static artifacts
 node_modules
 uploads/files/*
+priv/static/*
