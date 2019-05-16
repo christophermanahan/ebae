@@ -31,6 +31,12 @@ config :ebae, EbaeWeb.Endpoint,
     ]
   ]
 
+config :ebae, Ebae.Accounts.Guardian,
+  issuer: "ebae",
+  secret_key:
+    System.get_env("GUARDIAN_SECRET_KEY") ||
+      "I4PKIf4IOkA2So5ysGWxnLrN+nU1Na7KSXAYi8R6bGOb1LNnIRxaoKAwNV1ATlAd"
+
 # ## SSL Support
 #
 # In order to use HTTPS in development, a self-signed

@@ -4,7 +4,6 @@ defmodule Ebae.Accounts.User do
   alias Ebae.Accounts.Credential
 
   schema "users" do
-    field :name, :string
     field :username, :string
     has_one :credential, Credential, on_replace: :update
 
@@ -14,8 +13,8 @@ defmodule Ebae.Accounts.User do
   @doc false
   def changeset(user, attrs) do
     user
-    |> cast(attrs, [:name, :username])
-    |> validate_required([:name, :username])
+    |> cast(attrs, [:username])
+    |> validate_required([:username])
     |> unique_constraint(:username)
   end
 end

@@ -5,6 +5,7 @@ defmodule Ebae.Accounts.Credential do
 
   schema "credentials" do
     field :email, :string
+    field :password, :string
     belongs_to :user, User
 
     timestamps()
@@ -13,8 +14,17 @@ defmodule Ebae.Accounts.Credential do
   @doc false
   def changeset(credential, attrs) do
     credential
-    |> cast(attrs, [:email])
-    |> validate_required([:email])
+    |> cast(attrs, [:email, :password])
+    |> validate_required([:email, :password])
     |> unique_constraint(:email)
+    |> put_password_hash()
   end
+
+  defp put_password_hash(
+         %Ecto.Changeset{valid?: true, changes: %{password: password}} = changeset
+       ) do
+    change(changeset, password: Bcrypt.hash_pwd_salt(password))
+  end
+
+  defp put_password_hash(changeset), do: changeset
 end

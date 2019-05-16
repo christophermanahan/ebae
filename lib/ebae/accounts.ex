@@ -108,4 +108,35 @@ defmodule Ebae.Accounts do
   def change_user(%User{} = user) do
     User.changeset(user, %{})
   end
+
+  @doc """
+  Authenticates a user with a username and a password
+
+  ## Examples
+
+      iex> authenticate_user(username, plain_text_password)
+      {:ok, %User{}}
+
+  """
+  def authenticate_user(username, plain_text_password) do
+    case get_user(username) do
+      nil ->
+        {:error, :invalid_credentials}
+
+      user ->
+        if Bcrypt.verify_pass(plain_text_password, get_password(user.id)) do
+          {:ok, user}
+        else
+          {:error, :invalid_credentials}
+        end
+    end
+  end
+
+  defp get_password(user_id) do
+    Repo.one(from c in Credential, where: c.user_id == ^user_id).password
+  end
+
+  defp get_user(username) do
+    Repo.one(from u in User, where: u.username == ^username)
+  end
 end
