@@ -124,7 +124,7 @@ defmodule Ebae.Accounts do
         {:error, :invalid_credentials}
 
       user ->
-        if Bcrypt.verify_pass(plain_text_password, get_password(user.id)) do
+        if Pbkdf2.verify_pass(plain_text_password, user.credential.password) do
           {:ok, user}
         else
           {:error, :invalid_credentials}
@@ -132,11 +132,8 @@ defmodule Ebae.Accounts do
     end
   end
 
-  defp get_password(user_id) do
-    Repo.one(from c in Credential, where: c.user_id == ^user_id).password
-  end
-
   defp get_user(username) do
     Repo.one(from u in User, where: u.username == ^username)
+    |> Repo.preload(:credential)
   end
 end

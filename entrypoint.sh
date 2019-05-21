@@ -23,5 +23,6 @@ webpack --mode production
 popd
 mix phx.digest
 mix ecto.migrate
+mix run priv/repo/seeds.exs
 
 exec mix phx.server

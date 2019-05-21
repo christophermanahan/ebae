@@ -18,7 +18,7 @@ config :ebae, Ebae.Accounts.Guardian,
   issuer: "ebae",
   secret_key: "r/Syflh2VFEkCAAbul9UjVk5fXFmnJ044UBN/7Fa9syZwxkhF7k3e9ph0cVC0VSm"
 
-config :bcrypt_elixir, log_rounds: 4
+config :pbkdf2_elixir, :rounds, 1
 
 # Print only warnings and errors during test
 config :logger, level: :warn

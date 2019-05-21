@@ -23,7 +23,7 @@ defmodule Ebae.Accounts.Credential do
   defp put_password_hash(
          %Ecto.Changeset{valid?: true, changes: %{password: password}} = changeset
        ) do
-    change(changeset, password: Bcrypt.hash_pwd_salt(password))
+    change(changeset, password: Pbkdf2.hash_pwd_salt(password))
   end
 
   defp put_password_hash(changeset), do: changeset
