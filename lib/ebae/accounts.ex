@@ -4,6 +4,7 @@ defmodule Ebae.Accounts do
   """
 
   import Ecto.Query, warn: false
+
   alias Ebae.Repo
   alias Ebae.Accounts.{User, Credential}
 
@@ -124,7 +125,7 @@ defmodule Ebae.Accounts do
         {:error, :invalid_credentials}
 
       user ->
-        if Pbkdf2.verify_pass(plain_text_password, user.credential.password) do
+        if Argon2.verify_pass(plain_text_password, user.credential.password) do
           {:ok, user}
         else
           {:error, :invalid_credentials}

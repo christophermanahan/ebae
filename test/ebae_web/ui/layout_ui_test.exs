@@ -1,7 +1,7 @@
 defmodule EbaeWeb.LayoutUI do
   use EbaeWeb.ConnCase
 
-  alias Ebae.{Accounts, Accounts.Guardian}
+  alias Ebae.Accounts
 
   @create_attrs %{
     username: "username",
@@ -32,26 +32,25 @@ defmodule EbaeWeb.LayoutUI do
     end
 
     test "displays sign out if user is signed in", %{conn: conn, user: user} do
-      conn = Guardian.Plug.sign_in(conn, user)
+      conn = Auth.sign_in(conn, user)
       conn = get(conn, "/")
       assert html_response(conn, 200) =~ "Sign out"
     end
 
     test "does not display sign in if user is signed in", %{conn: conn, user: user} do
-      conn = Guardian.Plug.sign_in(conn, user)
+      conn = Auth.sign_in(conn, user)
       conn = get(conn, "/")
       refute html_response(conn, 200) =~ "Sign in"
     end
 
     test "does not display register if user is signed in", %{conn: conn, user: user} do
-      conn = Guardian.Plug.sign_in(conn, user)
+      conn = Auth.sign_in(conn, user)
       conn = get(conn, "/")
       refute html_response(conn, 200) =~ "Sign register"
     end
   end
 
   defp create_user(_) do
-    user = fixture(:user)
-    {:ok, user: user}
+    {:ok, user: fixture(:user)}
   end
 end

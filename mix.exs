@@ -44,8 +44,7 @@ defmodule Ebae.MixProject do
       {:jason, "~> 1.0"},
       {:plug_cowboy, "~> 2.0"},
       {:guardian, "~> 1.2.1"},
-      {:comeonin, "~> 5.1.2"},
-      {:pbkdf2_elixir, "~> 1.0.2"}
+      {:argon2_elixir, "~> 2.0"}
     ]
   end
 

@@ -1,7 +1,7 @@
 defmodule EbaeWeb.LayoutViewTest do
   use EbaeWeb.ConnCase, async: true
 
-  alias Ebae.{Accounts, Accounts.Guardian}
+  alias Ebae.Accounts
   alias EbaeWeb.LayoutView
 
   @create_attrs %{
@@ -18,7 +18,7 @@ defmodule EbaeWeb.LayoutViewTest do
     setup [:create_user]
 
     test "returns true if the user is signed in", %{conn: conn, user: user} do
-      conn = Guardian.Plug.sign_in(conn, user)
+      conn = Auth.sign_in(conn, user)
       assert LayoutView.signed_in?(conn)
     end
 
@@ -28,7 +28,6 @@ defmodule EbaeWeb.LayoutViewTest do
   end
 
   defp create_user(_) do
-    user = fixture(:user)
-    {:ok, user: user}
+    {:ok, user: fixture(:user)}
   end
 end

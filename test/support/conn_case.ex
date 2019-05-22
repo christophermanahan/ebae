@@ -20,6 +20,7 @@ defmodule EbaeWeb.ConnCase do
       # Import conveniences for testing with connections
       use Phoenix.ConnTest
       alias EbaeWeb.Router.Helpers, as: Routes
+      alias Ebae.Accounts.Guardian.Plug, as: Auth
 
       # The default endpoint for testing
       @endpoint EbaeWeb.Endpoint

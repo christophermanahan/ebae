@@ -35,7 +35,7 @@ defmodule Ebae.AccountsTest do
     test "create_user/1 with valid data creates a user", %{user: user} do
       assert user.username == "username"
       assert user.credential.email == "email"
-      assert Pbkdf2.verify_pass("password", user.credential.password)
+      assert Argon2.verify_pass("password", user.credential.password)
     end
 
     test "create_user/1 with invalid data returns error changeset" do
@@ -46,7 +46,7 @@ defmodule Ebae.AccountsTest do
       assert {:ok, %User{} = user} = Accounts.update_user(user, @update_attrs)
       assert user.username == "updated username"
       assert user.credential.email == "updated email"
-      assert Pbkdf2.verify_pass("updated password", user.credential.password)
+      assert Argon2.verify_pass("updated password", user.credential.password)
     end
 
     test "update_user/2 with invalid data returns error changeset", %{user: user} do
@@ -66,7 +66,7 @@ defmodule Ebae.AccountsTest do
     test "authenticate_user/2 with valid username and password returns user" do
       assert {:ok, user} = Accounts.authenticate_user("username", "password")
       assert user.username == "username"
-      assert Pbkdf2.verify_pass("password", user.credential.password)
+      assert Argon2.verify_pass("password", user.credential.password)
     end
 
     test "authenticate_user/2 with invalid username and password returns error invalid credentials" do
@@ -103,7 +103,6 @@ defmodule Ebae.AccountsTest do
   end
 
   defp create_user(_) do
-    user = fixture(:user)
-    {:ok, user: user}
+    {:ok, user: fixture(:user)}
   end
 end

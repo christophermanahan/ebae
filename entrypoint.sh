@@ -21,6 +21,11 @@ fi
 pushd assets
 webpack --mode production 
 popd
+
+pushd deps/argon2_elixir
+make clean && make
+popd
+
 mix phx.digest
 mix ecto.migrate
 mix run priv/repo/seeds.exs

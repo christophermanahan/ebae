@@ -2,7 +2,8 @@ defmodule EbaeWeb.RegistrationControllerTest do
   use EbaeWeb.ConnCase
 
   import Ecto.Query, warn: false
-  alias Ebae.{Repo, Accounts, Accounts.User, Accounts.Guardian}
+
+  alias Ebae.{Repo, Accounts, Accounts.User}
 
   @create_attrs %{
     username: "username",
@@ -31,7 +32,7 @@ defmodule EbaeWeb.RegistrationControllerTest do
     end
 
     test "redirects to index when user is signed in", %{conn: conn, user: user} do
-      conn = Guardian.Plug.sign_in(conn, user)
+      conn = Auth.sign_in(conn, user)
       conn = get(conn, Routes.registration_path(conn, :new))
       assert get_flash(conn, :info) == "Already signed in"
       assert redirected_to(conn) == Routes.page_path(conn, :index)
@@ -43,12 +44,12 @@ defmodule EbaeWeb.RegistrationControllerTest do
       post(conn, Routes.registration_path(conn, :create), user: @create_attrs)
       user = get_user("username")
       assert user.credential.email == "email"
-      assert Pbkdf2.verify_pass("password", user.credential.password)
+      assert Argon2.verify_pass("password", user.credential.password)
     end
 
     test "signs user in if data is valid", %{conn: conn} do
       conn = post(conn, Routes.registration_path(conn, :create), user: @create_attrs)
-      assert Guardian.Plug.authenticated?(conn)
+      assert Auth.authenticated?(conn)
     end
 
     test "renders errors when username is not unique", %{conn: conn} do
@@ -73,8 +74,7 @@ defmodule EbaeWeb.RegistrationControllerTest do
   end
 
   defp create_user(_) do
-    user = fixture(:user)
-    {:ok, user: user}
+    {:ok, user: fixture(:user)}
   end
 
   defp get_user(username) do
