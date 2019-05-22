@@ -1,6 +1,8 @@
 defmodule EbaeWeb.Router do
   use EbaeWeb, :router
 
+  alias Ebae.Accounts
+
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
@@ -14,7 +16,7 @@ defmodule EbaeWeb.Router do
   end
 
   pipeline :auth do
-    plug Ebae.Accounts.MaybeAuthenticated
+    plug Accounts.MaybeAuthenticated
   end
 
   pipeline :ensure_auth do

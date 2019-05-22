@@ -69,7 +69,12 @@ defmodule Ebae.AccountsTest do
       assert Argon2.verify_pass("password", user.credential.password)
     end
 
-    test "authenticate_user/2 with invalid username and password returns error invalid credentials" do
+    test "authenticate_user/2 with invalid username returns error invalid credentials" do
+      assert {:error, :invalid_credentials} =
+               Accounts.authenticate_user("invalid username", "password")
+    end
+
+    test "authenticate_user/2 with invalid password returns error invalid credentials" do
       assert {:error, :invalid_credentials} =
                Accounts.authenticate_user("username", "incorrect password")
     end

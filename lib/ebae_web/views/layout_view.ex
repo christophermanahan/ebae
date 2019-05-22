@@ -1,9 +1,9 @@
 defmodule EbaeWeb.LayoutView do
   use EbaeWeb, :view
 
-  alias Ebae.Accounts.Guardian
+  alias EbaeWeb.Auth
 
-  def signed_in?(conn) do
-    Guardian.Plug.authenticated?(conn)
+  def authenticated?(conn) do
+    Auth.authenticated?(conn)
   end
 end

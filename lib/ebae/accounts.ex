@@ -2,7 +2,6 @@ defmodule Ebae.Accounts do
   @moduledoc """
   The Accounts context.
   """
-
   import Ecto.Query, warn: false
 
   alias Ebae.Repo
@@ -120,16 +119,11 @@ defmodule Ebae.Accounts do
 
   """
   def authenticate_user(username, plain_text_password) do
-    case get_user(username) do
-      nil ->
-        {:error, :invalid_credentials}
-
-      user ->
-        if Argon2.verify_pass(plain_text_password, user.credential.password) do
-          {:ok, user}
-        else
-          {:error, :invalid_credentials}
-        end
+    with user = %Ebae.Accounts.User{} <- get_user(username),
+         true <- Argon2.verify_pass(plain_text_password, user.credential.password) do
+      {:ok, user}
+    else
+      _err -> {:error, :invalid_credentials}
     end
   end
 

@@ -1,27 +1,20 @@
 defmodule EbaeWeb.SessionController do
   use EbaeWeb, :controller
 
-  alias Ebae.{Accounts, Accounts.User, Accounts.Guardian}
+  alias EbaeWeb.Auth
+  alias Ebae.{Accounts, Accounts.User}
 
   def new(conn, _) do
-    if authenticated?(conn) do
+    if Auth.authenticated?(conn) do
       conn
       |> put_flash(:info, "Already signed in")
       |> redirect(to: "/")
     else
       render(conn, "new.html",
-        changeset: user_changeset(),
+        changeset: Accounts.change_user(%User{}),
         action: Routes.session_path(conn, :create)
       )
     end
-  end
-
-  defp authenticated?(conn) do
-    Guardian.Plug.authenticated?(conn)
-  end
-
-  defp user_changeset() do
-    Accounts.change_user(%User{})
   end
 
   def create(conn, %{
@@ -34,14 +27,14 @@ defmodule EbaeWeb.SessionController do
   def delete(conn, _) do
     conn
     |> put_flash(:info, "Farewell")
-    |> Guardian.Plug.sign_out()
+    |> Auth.sign_out()
     |> redirect(to: "/signin")
   end
 
   defp signin_reply({:ok, user}, conn) do
     conn
     |> put_flash(:info, "Welcome back")
-    |> Guardian.Plug.sign_in(user)
+    |> Auth.sign_in(user)
     |> redirect(to: "/")
   end
 

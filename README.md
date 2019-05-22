@@ -2,6 +2,7 @@
 
 To start your Phoenix server:
 
+  * Install Elixir 1.8.1
   * mix ecto.setup
   * mix phx.server
 

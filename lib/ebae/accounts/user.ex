@@ -1,6 +1,8 @@
 defmodule Ebae.Accounts.User do
   use Ecto.Schema
+
   import Ecto.Changeset
+
   alias Ebae.Accounts.Credential
 
   schema "users" do

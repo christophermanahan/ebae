@@ -14,16 +14,16 @@ defmodule EbaeWeb.LayoutViewTest do
     user
   end
 
-  describe "signed in" do
+  describe "authenticated" do
     setup [:create_user]
 
     test "returns true if the user is signed in", %{conn: conn, user: user} do
       conn = Auth.sign_in(conn, user)
-      assert LayoutView.signed_in?(conn)
+      assert LayoutView.authenticated?(conn)
     end
 
     test "returns false if the user is not signed in", %{conn: conn} do
-      refute LayoutView.signed_in?(conn)
+      refute LayoutView.authenticated?(conn)
     end
   end
 
