@@ -1,6 +1,8 @@
 defmodule EbaeWeb.Router do
   use EbaeWeb, :router
 
+  alias Ebae.Accounts
+
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
@@ -13,9 +15,25 @@ defmodule EbaeWeb.Router do
     plug :accepts, ["json"]
   end
 
+  pipeline :auth do
+    plug Accounts.MaybeAuthenticated
+  end
+
+  pipeline :ensure_auth do
+    plug Guardian.Plug.EnsureAuthenticated
+  end
+
   scope "/", EbaeWeb do
-    pipe_through :browser
+    pipe_through [:browser, :auth]
 
     get "/", PageController, :index
+
+    get "/signin", SessionController, :new
+    post "/signin", SessionController, :create
+
+    delete "/signout", SessionController, :delete
+
+    get "/signup", RegistrationController, :new
+    post "/signup", RegistrationController, :create
   end
 end

@@ -14,8 +14,6 @@ services:
       - "4000:4000"
     depends_on:
       - db
-    volumes:
-      - .:/app
   db:
     image: postgres:11.2
     environment:
