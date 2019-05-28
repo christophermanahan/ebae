@@ -17,6 +17,18 @@ defmodule EbaeWeb.RegistrationControllerTest do
     username: "another username",
     credential: %{email: "email", password: "password"}
   }
+  @invalid_no_username %{
+    username: nil,
+    credential: %{email: "email", password: "password"}
+  }
+  @invalid_no_email %{
+    username: "another username",
+    credential: %{email: nil, password: "password"}
+  }
+  @invalid_no_password %{
+    username: "another username",
+    credential: %{email: "email", password: nil}
+  }
 
   def fixture(:user) do
     {:ok, user} = Accounts.create_user(@create_attrs)
@@ -63,6 +75,27 @@ defmodule EbaeWeb.RegistrationControllerTest do
       Accounts.create_user(@create_attrs)
       conn = post(conn, Routes.registration_path(conn, :create), user: @invalid_unique_email)
       assert get_flash(conn, :error) == "Email unavailable"
+      assert redirected_to(conn) == Routes.registration_path(conn, :new)
+    end
+
+    @tag :skip
+    test "renders errors when username is not provided", %{conn: conn} do
+      conn = post(conn, Routes.registration_path(conn, :create), user: @invalid_no_username)
+      assert get_flash(conn, :error) == "All fields required"
+      assert redirected_to(conn) == Routes.registration_path(conn, :new)
+    end
+
+    @tag :skip
+    test "renders errors when email is not provided", %{conn: conn} do
+      conn = post(conn, Routes.registration_path(conn, :create), user: @invalid_no_email)
+      assert get_flash(conn, :error) == "All fields required"
+      assert redirected_to(conn) == Routes.registration_path(conn, :new)
+    end
+
+    @tag :skip
+    test "renders errors when password is not provided", %{conn: conn} do
+      conn = post(conn, Routes.registration_path(conn, :create), user: @invalid_no_password)
+      assert get_flash(conn, :error) == "All fields required"
       assert redirected_to(conn) == Routes.registration_path(conn, :new)
     end
 
