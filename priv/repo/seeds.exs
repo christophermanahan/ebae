@@ -9,7 +9,7 @@ item_attrs = %{
   available: true,
   description: "some description",
   initial_price: "120.5",
-  name: "some name",
+  name: "some name"
 }
 
 {:ok, user} = Accounts.create_user(user_attrs)

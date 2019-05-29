@@ -28,22 +28,16 @@ defmodule EbaeWeb.Router do
 
     get "/", PageController, :index
 
-    get "/signin", SessionController, :new
-    post "/signin", SessionController, :create
+    resources "/signin", SessionController, only: [:new, :create]
 
     delete "/signout", SessionController, :delete
 
-    get "/signup", RegistrationController, :new
-    post "/signup", RegistrationController, :create
+    resources "/signup", RegistrationController, only: [:new, :create]
   end
 
   scope "/sell", EbaeWeb do
     pipe_through [:browser, :auth, :ensure_auth]
 
-    get "/", SellController, :index
-
-    get "/new", SellController, :new
-
-    post "/create", SellController, :create
+    resources "/", SellController, only: [:index, :new, :create]
   end
 end

@@ -33,7 +33,11 @@ defmodule EbaeWeb.SellControllerTest do
     test "displays add listing", %{conn: conn, user: user} do
       conn = Auth.sign_in(conn, user)
       conn = get(conn, Routes.sell_path(conn, :index))
-      assert html_response(conn, 200) =~ safe_to_string(link("Add listing",to: Routes.sell_path(conn, :new, class: "nav-link")))
+
+      assert html_response(conn, 200) =~
+               safe_to_string(
+                 link("Add listing", to: Routes.sell_path(conn, :new, class: "nav-link"))
+               )
     end
   end
 
@@ -58,7 +62,7 @@ defmodule EbaeWeb.SellControllerTest do
     test "creates item if data is valid", %{conn: conn, user: user} do
       conn = Auth.sign_in(conn, user)
       post(conn, Routes.sell_path(conn, :create), item: @item_attrs)
-      [item] =  Auction.get_items!(user)
+      [item] = Auction.get_items!(user)
       assert item.name == "item"
       assert item.description == "description"
       assert item.initial_price == Decimal.from_float(100.01)

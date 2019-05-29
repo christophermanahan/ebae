@@ -10,7 +10,7 @@ defmodule EbaeWeb.SellView do
 
   def items(conn) do
     Auth.current_user(conn)
-    |> Auction.get_items!
-    |> Enum.map(fn(item) -> item.name end)
+    |> Auction.get_items!()
+    |> Enum.map(fn item -> item.name end)
   end
 end

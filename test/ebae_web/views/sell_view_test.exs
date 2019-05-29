@@ -8,7 +8,7 @@ defmodule EbaeWeb.SellViewTest do
     available: true,
     description: "some description",
     initial_price: "120.5",
-    name: "some name",
+    name: "some name"
   }
 
   @user_attrs %{

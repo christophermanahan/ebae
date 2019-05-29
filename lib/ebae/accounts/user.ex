@@ -8,7 +8,7 @@ defmodule Ebae.Accounts.User do
   schema "users" do
     field :username, :string
     has_one :credential, Credential, on_replace: :update
-    has_many :item, Item
+    has_many :items, Item
 
     timestamps()
   end

@@ -13,7 +13,7 @@ defmodule EbaeWeb.SellController do
 
   def index(conn, _) do
     render(conn, "index.html")
-  end 
+  end
 
   def create(conn, %{"item" => item}) do
     conn
@@ -34,7 +34,7 @@ defmodule EbaeWeb.SellController do
 
   defp validate(item) do
     Map.values(item)
-    |> Enum.all?(fn(key) -> key != "" end)
+    |> Enum.all?(fn key -> key != "" end)
   end
 
   defp create_reply({:ok, _}, conn) do
