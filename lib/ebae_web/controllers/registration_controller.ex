@@ -8,7 +8,7 @@ defmodule EbaeWeb.RegistrationController do
     if Auth.authenticated?(conn) do
       conn
       |> put_flash(:info, "Already signed in")
-      |> redirect(to: "/")
+      |> redirect(to: Routes.page_path(conn, :index))
     else
       render(conn, "new.html",
         changeset: Accounts.change_user(%User{}),
@@ -26,13 +26,13 @@ defmodule EbaeWeb.RegistrationController do
     conn
     |> put_flash(:info, "Welcome")
     |> Auth.sign_in(user)
-    |> redirect(to: "/")
+    |> redirect(to: Routes.page_path(conn, :index))
   end
 
   def signup_reply({:error, changeset}, conn) do
     with reason <- error_from(changeset),
          conn <- put_flash(conn, :error, reason) do
-      redirect(conn, to: "/signup")
+      redirect(conn, to: Routes.registration_path(conn, :new))
     end
   end
 

@@ -5,13 +5,9 @@
     </div>
   <% end %>
 
-  <%= render "text_field.html", f: f, key: :username %>
-
-  <div class="form-group">
-    <%= inputs_for f, :credential, fn cf -> %>
-      <%= render "text_field.html", f: cf, key: :password %>
-    <% end %>
-  </div>
+  <%= render "text_field.html", f: f, key: :name %>
+  <%= render "text_field.html", f: f, key: :description %>
+  <%= render "text_field.html", f: f, key: :initial_price %>
 
   <div>
     <%= submit "Submit" %>

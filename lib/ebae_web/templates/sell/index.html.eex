@@ -1,0 +1,14 @@
+<h1>Welcome seller <%= username(@conn) %></h1> 
+
+<h2>Your current listings</h2>
+<%= link("Add listing",to: Routes.sell_path(@conn, :new, class: "nav-link")) %>
+<%= for item <- items(@conn) do %>
+  <section class="row">
+    <article class="column">
+      <p><%= item %></p>
+    </article>
+    <article class="column">
+      <p>X</p>
+    </article>
+  </section>
+<% end %>

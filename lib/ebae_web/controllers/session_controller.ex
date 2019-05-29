@@ -8,7 +8,7 @@ defmodule EbaeWeb.SessionController do
     if Auth.authenticated?(conn) do
       conn
       |> put_flash(:info, "Already signed in")
-      |> redirect(to: "/")
+      |> redirect(to: Routes.page_path(conn, :index))
     else
       render(conn, "new.html",
         changeset: Accounts.change_user(%User{}),
@@ -28,14 +28,14 @@ defmodule EbaeWeb.SessionController do
     conn
     |> put_flash(:info, "Farewell")
     |> Auth.sign_out()
-    |> redirect(to: "/signin")
+    |> redirect(to: Routes.session_path(conn, :new))
   end
 
   defp signin_reply({:ok, user}, conn) do
     conn
     |> put_flash(:info, "Welcome back")
     |> Auth.sign_in(user)
-    |> redirect(to: "/")
+    |> redirect(to: Routes.page_path(conn, :index))
   end
 
   defp signin_reply({:error, _}, conn) do
