@@ -8,7 +8,7 @@ defmodule EbaeWeb.RegistrationController do
     if Auth.authenticated?(conn) do
       conn
       |> put_flash(:info, "Already signed in")
-      |> redirect(to: "/")
+      |> redirect(to: Routes.page_path(conn, :index))
     else
       render(conn, "new.html",
         changeset: Accounts.change_user(%User{}),

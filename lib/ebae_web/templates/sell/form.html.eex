@@ -5,17 +5,9 @@
     </div>
   <% end %>
 
-  <%= label f, :name %>
-  <%= text_input f, :name %>
-  <%= error_tag f, :name %>
-
-  <%= label f, :description %>
-  <%= text_input f, :description %>
-  <%= error_tag f, :description %>
-
-  <%= label f, :initial_price %>
-  <%= text_input f, :initial_price %>
-  <%= error_tag f, :initial_price %>
+  <%= render "text_field.html", f: f, key: :name %>
+  <%= render "text_field.html", f: f, key: :description %>
+  <%= render "text_field.html", f: f, key: :initial_price %>
 
   <div>
     <%= submit "Submit" %>

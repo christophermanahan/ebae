@@ -5,15 +5,11 @@
     </div>
   <% end %>
 
-  <%= label f, :username %>
-  <%= text_input f, :username %>
-  <%= error_tag f, :username %>
+  <%= render "text_field.html", f: f, key: :username %>
 
   <div class="form-group">
     <%= inputs_for f, :credential, fn cf -> %>
-      <%= label cf, :password %>
-      <%= text_input cf, :password %>
-      <%= error_tag cf, :password %>
+      <%= render "text_field.html", f: cf, key: :password %>
     <% end %>
   </div>
 

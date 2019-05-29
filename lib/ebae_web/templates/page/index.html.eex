@@ -1,4 +1,4 @@
 <section class="phx-hero">
   <h1><%= gettext "Welcome to %{name}!", name: "Ebae" %></h1>
-  <p>An electronic bidding platfrom for you, bae</p>
+  <p>An electronic bidding platform for you, bae</p>
 </section>
