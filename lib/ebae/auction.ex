@@ -38,6 +38,24 @@ defmodule Ebae.Auction do
   def get_item!(id), do: Repo.get!(Item, id)
 
   @doc """
+  Gets items belonging to a given user.
+
+  Raises `Ecto.NoResultsError` if the Item does not exist.
+
+  ## Examples
+
+      iex> get_items!(%User{})
+      [%Item{}]
+
+      iex> get_items!(%User{})
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_items!(%User{} = user) do
+    Repo.all(from i in Item, where: i.user_id == ^user.id)
+  end
+
+  @doc """
   Creates a item.
 
   ## Examples
@@ -53,26 +71,6 @@ defmodule Ebae.Auction do
     %Item{}
     |> Item.changeset(attrs)
     |> Repo.insert()
-  end
-
-  @doc """
-  Updates a item.
-
-  ## Examples
-
-      iex> update_item(item, %{user_id, user_id, field: new_value})
-      {:ok, %Item{}}
-
-      iex> update_item(item, %{user_id, user_id, field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def update_item_user(%Item{} = item, user_id) do
-    IO.inspect(item)
-
-    Accounts.get_user!(user_id)
-    |> Ecto.build_assoc(:item, item)
-    |> Repo.update()
   end
 
   @doc """

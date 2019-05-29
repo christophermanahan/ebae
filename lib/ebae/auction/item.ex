@@ -6,7 +6,7 @@ defmodule Ebae.Auction.Item do
   alias Ebae.Accounts.User
 
   schema "items" do
-    field :available, :boolean, default: false
+    field :available, :boolean, default: true
     field :description, :string
     field :initial_price, :decimal
     field :name, :string

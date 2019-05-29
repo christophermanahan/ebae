@@ -7,23 +7,19 @@ defmodule Ebae.AuctionTest do
     available: true,
     description: "some description",
     initial_price: "120.5",
-    name: "some name"
+    name: "some name",
   }
   @update_attrs %{
     available: false,
     description: "some updated description",
     initial_price: "456.7",
-    name: "some updated name"
+    name: "some updated name",
   }
   @invalid_attrs %{available: nil, description: nil, initial_price: nil, name: nil, user_id: nil}
-
+  
   @user_attrs %{
     username: "username",
     credential: %{email: "email", password: "password"}
-  }
-  @updated_user_attrs %{
-    username: "updated username",
-    credential: %{email: "updated email", password: "password"}
   }
 
   def fixture(:item, user_id) do
@@ -49,10 +45,13 @@ defmodule Ebae.AuctionTest do
       assert Auction.get_item!(item.id) == item
     end
 
-    test "create_item/1 with valid data creates an item", %{user: user} do
-      assert {:ok, %Item{} = item} =
-               Auction.create_item(Map.put(@create_attrs, :user_id, user.id))
+    test "get_items!/1 returns the items with belonging to a given user", %{user: user} do
+      item = fixture(:item, user.id)
+      assert Auction.get_items!(user) == [item]
+    end
 
+    test "create_item/1 with valid data creates an item", %{user: user} do
+      assert {:ok, %Item{} = item} = Auction.create_item(Map.put(@create_attrs, :user_id, user.id))
       assert item.available == true
       assert item.description == "some description"
       assert item.initial_price == Decimal.new("120.5")

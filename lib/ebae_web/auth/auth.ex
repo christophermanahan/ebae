@@ -4,4 +4,5 @@ defmodule EbaeWeb.Auth do
   defdelegate authenticated?(conn), to: Guardian.Plug, as: :authenticated?
   defdelegate sign_in(conn, user), to: Guardian.Plug, as: :sign_in
   defdelegate sign_out(conn), to: Guardian.Plug, as: :sign_out
+  defdelegate current_user(conn), to: Guardian.Plug, as: :current_resource
 end

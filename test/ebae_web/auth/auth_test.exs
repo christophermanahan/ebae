@@ -13,6 +13,15 @@ defmodule EbaeWeb.AuthTest do
     user
   end
 
+  describe "current_user" do
+    setup [:create_user]
+
+    test "retrieves current user", %{conn: conn, user: user} do
+      conn = Auth.sign_in(conn, user)
+      assert Auth.current_user(conn) == user
+    end
+  end
+
   describe "sign in" do
     setup [:create_user]
 

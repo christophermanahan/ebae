@@ -18,8 +18,8 @@
             <%= link "Register", to: Routes.registration_path(@conn, :new), class: "nav-link" %>
           <% end %>      
         </nav>
-        <a href="http://phoenixframework.org/" class="phx-logo">
-          <img src="<%= Routes.static_path(@conn, "/images/phoenix.png") %>" alt="Phoenix Framework Logo"/>
+        <a href="/" class="phx-logo">
+          <img src="<%= Routes.static_path(@conn, "/images/ebae.png") %>" alt="Ebae"/>
         </a>
       </section>
     </header>

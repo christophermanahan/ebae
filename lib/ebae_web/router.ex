@@ -36,4 +36,14 @@ defmodule EbaeWeb.Router do
     get "/signup", RegistrationController, :new
     post "/signup", RegistrationController, :create
   end
+
+  scope "/sell", EbaeWeb do
+    pipe_through [:browser, :auth, :ensure_auth]
+
+    get "/", SellController, :index
+
+    get "/new", SellController, :new
+
+    post "/create", SellController, :create
+  end
 end
