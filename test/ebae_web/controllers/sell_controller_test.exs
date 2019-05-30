@@ -57,7 +57,7 @@ defmodule EbaeWeb.SellControllerTest do
     test "creates item if data is valid", %{conn: conn, user: user} do
       conn = Auth.sign_in(conn, user)
       post(conn, Routes.sell_path(conn, :create), item: @item_attrs)
-      [item] = Auction.get_items!(user)
+      [item] = Auction.get_sellers_items!(user)
       assert item.name == "item"
       assert item.description == "description"
       assert item.initial_price == Decimal.from_float(100.01)
@@ -93,15 +93,15 @@ defmodule EbaeWeb.SellControllerTest do
     test "deletes item", %{conn: conn, user: user} do
       conn = Auth.sign_in(conn, user)
       post(conn, Routes.sell_path(conn, :create), item: @item_attrs)
-      [item] = Auction.get_items!(user)
+      [item] = Auction.get_sellers_items!(user)
       delete(conn, Routes.sell_path(conn, :delete, item.id))
-      assert Auction.get_items!(user) == []
+      assert Auction.get_sellers_items!(user) == []
     end
 
     test "renders seller index if delete is successful", %{conn: conn, user: user} do
       conn = Auth.sign_in(conn, user)
       post(conn, Routes.sell_path(conn, :create), item: @item_attrs)
-      [item] = Auction.get_items!(user)
+      [item] = Auction.get_sellers_items!(user)
       conn = delete(conn, Routes.sell_path(conn, :delete, item.id))
       assert get_flash(conn, :info) == "Listing successfully deleted"
       assert redirected_to(conn) == Routes.sell_path(conn, :index)

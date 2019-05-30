@@ -12,6 +12,8 @@
       <section class="container">
         <nav role="navigation">
           <%= if authenticated?(@conn) do %>
+            <%= link "Sell", to: Routes.sell_path(@conn, :index), class: "nav-link" %>
+            <%= link "Buy", to: Routes.buy_path(@conn, :index), class: "nav-link" %>
             <%= link "Sign out", to: Routes.session_path(@conn, :delete), method: :delete, class: "nav-link" %>
           <% else %>
             <%= link "Sign in", to: Routes.session_path(@conn, :new), class: "nav-link" %>

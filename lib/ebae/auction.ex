@@ -6,7 +6,7 @@ defmodule Ebae.Auction do
   import Ecto.Query, warn: false
 
   alias Ebae.Repo
-  alias Ebae.{Auction.Item, Accounts, Accounts.User}
+  alias Ebae.{Auction.Item, Accounts.User}
 
   @doc """
   Returns the list of items.
@@ -40,19 +40,33 @@ defmodule Ebae.Auction do
   @doc """
   Gets items belonging to a given user.
 
-  Raises `Ecto.NoResultsError` if the Item does not exist.
-
   ## Examples
 
-      iex> get_items!(%User{})
+      iex> get_sellers_items!(%User{})
       [%Item{}]
 
-      iex> get_items!(%User{})
+      iex> get_sellers_items!(%User{})
       ** (Ecto.NoResultsError)
 
   """
-  def get_items!(%User{} = user) do
+  def get_sellers_items!(%User{} = user) do
     Repo.all(from i in Item, where: i.user_id == ^user.id)
+  end
+
+  @doc """
+  Gets items belonging to a given user.
+
+  ## Examples
+
+      iex> get_buyers_items!(%User{})
+      [%Item{}]
+
+      iex> get_buyers_items!(%User{})
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_buyers_items!(%User{} = user) do
+    Repo.all(from i in Item, where: i.user_id != ^user.id)
   end
 
   @doc """

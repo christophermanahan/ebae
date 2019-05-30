@@ -1,4 +1,4 @@
-defmodule EbaeWeb.SellView do
+defmodule EbaeWeb.BuyView do
   use EbaeWeb, :view
 
   alias EbaeWeb.Auth
@@ -11,6 +11,6 @@ defmodule EbaeWeb.SellView do
   def items(conn) do
     conn
     |> Auth.current_user
-    |> Auction.get_sellers_items!
+    |> Auction.get_buyers_items!
   end
 end
