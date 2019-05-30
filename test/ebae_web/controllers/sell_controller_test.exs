@@ -9,7 +9,12 @@ defmodule EbaeWeb.SellControllerTest do
     description: "description",
     initial_price: 100.01
   }
-  @invalid_attrs %{description: "", initial_price: "", name: ""}
+  @price_invalid_attrs %{
+    name: "item",
+    description: "description",
+    initial_price: "invalid string"
+  }
+  @nil_item_attrs %{description: "", initial_price: "", name: ""}
 
   @user_attrs %{
     username: "username",
@@ -28,16 +33,6 @@ defmodule EbaeWeb.SellControllerTest do
       conn = Auth.sign_in(conn, user)
       conn = get(conn, Routes.sell_path(conn, :index))
       assert html_response(conn, 200) =~ "Your current listings"
-    end
-
-    test "displays add listing", %{conn: conn, user: user} do
-      conn = Auth.sign_in(conn, user)
-      conn = get(conn, Routes.sell_path(conn, :index))
-
-      assert html_response(conn, 200) =~
-               safe_to_string(
-                 link("Add listing", to: Routes.sell_path(conn, :new, class: "nav-link"))
-               )
     end
   end
 
@@ -77,11 +72,39 @@ defmodule EbaeWeb.SellControllerTest do
       assert redirected_to(conn) == Routes.sell_path(conn, :index)
     end
 
-    test "renders errors when data is invalid", %{conn: conn, user: user} do
+    test "renders error when create item fails", %{conn: conn, user: user} do
       conn = Auth.sign_in(conn, user)
-      conn = post(conn, Routes.sell_path(conn, :create), item: @invalid_attrs)
+      conn = post(conn, Routes.sell_path(conn, :create), item: @price_invalid_attrs)
+      assert get_flash(conn, :error) == "Form submission invalid"
+      assert redirected_to(conn) == Routes.sell_path(conn, :new)
+    end
+
+    test "renders error when data is missing", %{conn: conn, user: user} do
+      conn = Auth.sign_in(conn, user)
+      conn = post(conn, Routes.sell_path(conn, :create), item: @nil_item_attrs)
       assert get_flash(conn, :error) == "All fields required"
       assert redirected_to(conn) == Routes.sell_path(conn, :new)
+    end
+  end
+
+  describe "delete" do
+    setup [:create_user]
+
+    test "deletes item", %{conn: conn, user: user} do
+      conn = Auth.sign_in(conn, user)
+      post(conn, Routes.sell_path(conn, :create), item: @item_attrs)
+      [item] = Auction.get_items!(user)
+      delete(conn, Routes.sell_path(conn, :delete, item.id))
+      assert Auction.get_items!(user) == []
+    end
+
+    test "renders seller index if delete is successful", %{conn: conn, user: user} do
+      conn = Auth.sign_in(conn, user)
+      post(conn, Routes.sell_path(conn, :create), item: @item_attrs)
+      [item] = Auction.get_items!(user)
+      conn = delete(conn, Routes.sell_path(conn, :delete, item.id))
+      assert get_flash(conn, :info) == "Listing successfully deleted"
+      assert redirected_to(conn) == Routes.sell_path(conn, :index)
     end
   end
 

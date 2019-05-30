@@ -1,7 +1,7 @@
 defmodule EbaeWeb.SellUITest do
   use EbaeWeb.ConnCase
 
-  alias Ebae.Accounts
+  alias Ebae.{Accounts, Auction}
 
   @item_attrs %{
     name: "some item",
@@ -33,6 +33,22 @@ defmodule EbaeWeb.SellUITest do
       post(conn, Routes.sell_path(conn, :create), item: @item_attrs)
       conn = get(conn, Routes.sell_path(conn, :index))
       assert html_response(conn, 200) =~ "some item"
+      assert html_response(conn, 200) =~ "some description"
+      assert html_response(conn, 200) =~ "100.01"
+    end
+
+    test "displays create listing", %{conn: conn, user: user} do
+      conn = Auth.sign_in(conn, user)
+      conn = get(conn, Routes.sell_path(conn, :index))
+      assert html_response(conn, 200) =~ "href=\"/sell/new\""
+    end
+
+    test "displays delete listing", %{conn: conn, user: user} do
+      conn = Auth.sign_in(conn, user)
+      post(conn, Routes.sell_path(conn, :create), item: @item_attrs)
+      [item] = Auction.get_items!(user)
+      conn = get(conn, Routes.sell_path(conn, :index))
+      assert html_response(conn, 200) =~ "href=\"/sell/#{item.id}\""
     end
   end
 
