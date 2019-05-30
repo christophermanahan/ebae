@@ -1,0 +1,27 @@
+<h1>Welcome buyer <%= username(@conn) %></h1> 
+
+<h2>Items for sale</h2>
+<section class="row">
+  <article class="column">
+    <p>Name</p>
+  </article>
+  <article class="column">
+    <p>Description</p>
+  </article>
+  <article class="column">
+    <p>Initial Price</p>
+  </article>
+</section>
+<%= for item <- items(@conn) do %>
+  <section class="row">
+    <article class="column">
+      <p><%= item.name %></p>
+    </article>
+    <article class="column">
+      <p><%= item.description %></p>
+    </article>
+    <article class="column">
+      <p><%= item.initial_price %></p>
+    </article>
+  </section>
+<% end %>

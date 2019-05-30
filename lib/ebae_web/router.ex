@@ -40,4 +40,10 @@ defmodule EbaeWeb.Router do
 
     resources "/", SellController, only: [:index, :new, :create, :delete]
   end
+
+  scope "/buy", EbaeWeb do
+    pipe_through [:browser, :auth, :ensure_auth]
+
+    resources "/", BuyController, only: [:index]
+  end
 end

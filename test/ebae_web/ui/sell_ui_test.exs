@@ -46,7 +46,7 @@ defmodule EbaeWeb.SellUITest do
     test "displays delete listing", %{conn: conn, user: user} do
       conn = Auth.sign_in(conn, user)
       post(conn, Routes.sell_path(conn, :create), item: @item_attrs)
-      [item] = Auction.get_items!(user)
+      [item] = Auction.get_sellers_items!(user)
       conn = get(conn, Routes.sell_path(conn, :index))
       assert html_response(conn, 200) =~ "href=\"/sell/#{item.id}\""
     end

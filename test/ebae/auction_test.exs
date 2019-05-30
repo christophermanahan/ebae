@@ -3,7 +3,7 @@ defmodule Ebae.AuctionTest do
 
   alias Ebae.{Auction, Accounts, Auction.Item}
 
-  @create_attrs %{
+  @item_attrs %{
     available: true,
     description: "some description",
     initial_price: "120.5",
@@ -22,8 +22,20 @@ defmodule Ebae.AuctionTest do
     credential: %{email: "email", password: "password"}
   }
 
+  @other_user_item_attrs %{
+    available: true,
+    description: "some other description",
+    initial_price: "1.00",
+    name: "some other name"
+  }
+
+  @other_user_attrs %{
+    username: "other username",
+    credential: %{email: "other email", password: "password"}
+  }
+
   def fixture(:item, user_id) do
-    {:ok, item} = Auction.create_item(Map.put(@create_attrs, :user_id, user_id))
+    {:ok, item} = Auction.create_item(Map.put(@item_attrs, :user_id, user_id))
     item
   end
 
@@ -45,15 +57,24 @@ defmodule Ebae.AuctionTest do
       assert Auction.get_item!(item.id) == item
     end
 
-    test "get_items!/1 returns the items with belonging to a given user", %{user: user} do
+    test "get_sellers_items!/1 returns the items belonging to a given seller", %{user: user} do
       item = fixture(:item, user.id)
-      assert Auction.get_items!(user) == [item]
+      assert Auction.get_sellers_items!(user) == [item]
+    end
+
+    test "get_buyers_items!/1 returns the items that are for sale", %{user: user} do
+      Auction.create_item(Map.put(@item_attrs, :user_id, user.id))
+
+      {:ok, other_user} = Accounts.create_user(@other_user_attrs)
+      {:ok, other_users_item} =
+        Auction.create_item(Map.put(@other_user_item_attrs, :user_id, other_user.id))
+
+      assert Auction.get_buyers_items!(user) == [other_users_item]
     end
 
     test "create_item/1 with valid data creates an item", %{user: user} do
       assert {:ok, %Item{} = item} =
-               Auction.create_item(Map.put(@create_attrs, :user_id, user.id))
-
+               Auction.create_item(Map.put(@item_attrs, :user_id, user.id))
       assert item.available == true
       assert item.description == "some description"
       assert item.initial_price == Decimal.new("120.5")

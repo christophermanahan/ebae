@@ -1,19 +1,23 @@
-defmodule EbaeWeb.SellViewTest do
+defmodule EbaeWeb.BuyViewTest do
   use EbaeWeb.ConnCase, async: true
 
   alias Ebae.{Accounts, Auction}
-  alias EbaeWeb.SellView
+  alias EbaeWeb.BuyView
 
   @item_attrs %{
     available: true,
     description: "some description",
-    initial_price: "120.5",
+    initial_price: "120.50",
     name: "some name"
   }
 
   @user_attrs %{
     username: "username",
     credential: %{email: "email", password: "password"}
+  }
+  @other_user_attrs %{
+    username: "other username",
+    credential: %{email: "other email", password: "password"}
   }
 
   def fixture(:user) do
@@ -26,18 +30,19 @@ defmodule EbaeWeb.SellViewTest do
 
     test "returns the current user", %{conn: conn, user: user} do
       conn = Auth.sign_in(conn, user)
-      assert SellView.username(conn) == user.username
+      assert BuyView.username(conn) == user.username
     end
   end
 
   describe "items" do
     setup [:create_user]
 
-    test "returns the current user's items", %{conn: conn, user: user} do
+    test "returns the current items for sale", %{conn: conn, user: user} do
+      {:ok, other_user} = Accounts.create_user(@other_user_attrs)
+      Auction.create_item(Map.put(@item_attrs, :user_id, other_user.id))
       conn = Auth.sign_in(conn, user)
-      conn = post(conn, Routes.sell_path(conn, :create), item: @item_attrs)
-      items = Auction.get_sellers_items!(user)
-      assert SellView.items(conn) == items
+      items = Auction.get_buyers_items!(user)
+      assert BuyView.items(conn) == items
     end
   end
 
