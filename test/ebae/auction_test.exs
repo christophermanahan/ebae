@@ -1,7 +1,7 @@
 defmodule Ebae.AuctionTest do
   use Ebae.DataCase
 
-  alias Ebae.{Auction, Accounts, Auction.Item}
+  alias Ebae.{Auction, Accounts, Auction.Item, Auction.Bid}
 
   @item_attrs %{
     available: true,
@@ -15,7 +15,7 @@ defmodule Ebae.AuctionTest do
     initial_price: "456.7",
     name: "some updated name"
   }
-  @invalid_attrs %{available: nil, description: nil, initial_price: nil, name: nil, user_id: nil}
+  @invalid_item_attrs %{available: nil, description: nil, initial_price: nil, name: nil, user_id: nil}
 
   @user_attrs %{
     username: "username",
@@ -34,6 +34,9 @@ defmodule Ebae.AuctionTest do
     credential: %{email: "other email", password: "password"}
   }
 
+  @bid_attrs %{offer: "120.5"}
+  @invalid_bid_attrs %{offer: nil, user_id: nil, item_id: nil}
+
   def fixture(:item, user_id) do
     {:ok, item} = Auction.create_item(Map.put(@item_attrs, :user_id, user_id))
     item
@@ -42,6 +45,11 @@ defmodule Ebae.AuctionTest do
   def fixture(:user) do
     {:ok, user} = Accounts.create_user(@user_attrs)
     user
+  end
+
+  def fixture(:bid, user_id, item_id) do
+    {:ok, bid} = Auction.create_bid(Map.merge(@bid_attrs, %{user_id: user_id, item_id: item_id}))
+    bid
   end
 
   describe "items" do
@@ -83,7 +91,7 @@ defmodule Ebae.AuctionTest do
     end
 
     test "create_item/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} = Auction.create_item(@invalid_attrs)
+      assert {:error, %Ecto.Changeset{}} = Auction.create_item(@invalid_item_attrs)
     end
 
     test "update_item/2 with valid data updates the item", %{user: user} do
@@ -97,7 +105,7 @@ defmodule Ebae.AuctionTest do
 
     test "update_item/2 with invalid data returns error changeset", %{user: user} do
       item = fixture(:item, user.id)
-      assert {:error, %Ecto.Changeset{}} = Auction.update_item(item, @invalid_attrs)
+      assert {:error, %Ecto.Changeset{}} = Auction.update_item(item, @invalid_item_attrs)
       assert item == Auction.get_item!(item.id)
     end
 
@@ -110,6 +118,32 @@ defmodule Ebae.AuctionTest do
     test "change_item/1 returns a item changeset", %{user: user} do
       item = fixture(:item, user.id)
       assert %Ecto.Changeset{} = Auction.change_item(item)
+    end
+  end
+
+  describe "bids" do
+    setup [:create_user]
+
+    test "get_bid!/1 returns the bid with given id", %{user: user} do
+      item = fixture(:item, user.id)
+      bid = fixture(:bid, user.id, item.id)
+      assert Auction.get_bid!(bid.id) == bid
+    end
+
+    test "create_bid/1 with valid data creates a bid", %{user: user} do
+      item = fixture(:item, user.id)
+      assert {:ok, %Bid{} = bid} = Auction.create_bid(Map.merge(@bid_attrs, %{user_id: user.id, item_id: item.id}))
+      assert bid.offer == Decimal.new("120.5")
+    end
+
+    test "create_bid/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Auction.create_bid(@invalid_bid_attrs)
+    end
+
+    test "change_bid/1 returns a bid changeset", %{user: user} do
+      item = fixture(:item, user.id)
+      bid = fixture(:bid, user.id, item.id)
+      assert %Ecto.Changeset{} = Auction.change_bid(bid)
     end
   end
 

@@ -6,7 +6,7 @@ defmodule Ebae.Auction do
   import Ecto.Query, warn: false
 
   alias Ebae.Repo
-  alias Ebae.{Auction.Item, Accounts.User}
+  alias Ebae.{Auction.Item, Auction.Bid, Accounts.User}
 
   @doc """
   Returns the list of items.
@@ -132,5 +132,52 @@ defmodule Ebae.Auction do
   """
   def change_item(%Item{} = item) do
     Item.changeset(item, %{})
+  end
+
+  @doc """
+  Gets a single bid.
+
+  Raises `Ecto.NoResultsError` if the Bid does not exist.
+
+  ## Examples
+
+      iex> get_bid!(123)
+      %Bid{}
+
+      iex> get_bid!(456)
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_bid!(id), do: Repo.get!(Bid, id)
+
+  @doc """
+  Creates a bid.
+
+  ## Examples
+
+      iex> create_bid(%{field: value})
+      {:ok, %Bid{}}
+
+      iex> create_bid(%{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def create_bid(attrs \\ %{}) do
+    %Bid{}
+    |> Bid.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking bid changes.
+
+  ## Examples
+
+      iex> change_bid(bid)
+      %Ecto.Changeset{source: %Bid{}}
+
+  """
+  def change_bid(%Bid{} = bid) do
+    Bid.changeset(bid, %{})
   end
 end

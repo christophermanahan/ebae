@@ -7,7 +7,7 @@ defmodule Ebae.Repo.Migrations.CreateItems do
       add :description, :string
       add :available, :boolean, default: false, null: false
       add :initial_price, :decimal
-      add :user_id, references(:users, on_replace: :update), null: false
+      add :user_id, references(:users, on_delete: :nothing), null: false
 
       timestamps()
     end

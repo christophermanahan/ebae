@@ -1,7 +1,7 @@
 defmodule EbaeWeb.BuyUITest do
   use EbaeWeb.ConnCase
 
-  alias Ebae.{Accounts, Auction}
+  alias Ebae.{Accounts, Auction, Auction.Bid}
 
   @item_attrs %{
     name: "some item",

@@ -81,6 +81,7 @@ select {
   display: block;
 }
 .phx-logo img {
+  max-height: 5em;
   width: auto;
   display: block;
 }

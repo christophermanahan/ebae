@@ -3,7 +3,7 @@ defmodule Ebae.Auction.Item do
 
   import Ecto.Changeset
 
-  alias Ebae.Accounts.User
+  alias Ebae.{Accounts.User, Auction.Bid}
 
   schema "items" do
     field :available, :boolean, default: true
@@ -11,6 +11,7 @@ defmodule Ebae.Auction.Item do
     field :initial_price, :decimal
     field :name, :string
     belongs_to :user, User
+    has_many :bids, Bid
 
     timestamps()
   end
