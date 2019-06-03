@@ -32,7 +32,7 @@ defmodule EbaeWeb.SellControllerTest do
     test "renders seller greeting page", %{conn: conn, user: user} do
       conn = Auth.sign_in(conn, user)
       conn = get(conn, Routes.sell_path(conn, :index))
-      assert html_response(conn, 200) =~ "Your current listings"
+      assert html_response(conn, 200) =~ "Your current auctions"
     end
   end
 

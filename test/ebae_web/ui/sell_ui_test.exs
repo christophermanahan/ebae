@@ -28,7 +28,7 @@ defmodule EbaeWeb.SellUITest do
       assert html_response(conn, 200) =~ "Welcome seller #{user.username}"
     end
 
-    test "displays users current listings", %{conn: conn, user: user} do
+    test "displays users current auctions", %{conn: conn, user: user} do
       conn = Auth.sign_in(conn, user)
       post(conn, Routes.sell_path(conn, :create), auction: @auction_attrs)
       conn = get(conn, Routes.sell_path(conn, :index))
@@ -37,13 +37,13 @@ defmodule EbaeWeb.SellUITest do
       assert html_response(conn, 200) =~ "100.01"
     end
 
-    test "displays create listing", %{conn: conn, user: user} do
+    test "displays create auction", %{conn: conn, user: user} do
       conn = Auth.sign_in(conn, user)
       conn = get(conn, Routes.sell_path(conn, :index))
       assert html_response(conn, 200) =~ "href=\"/sell/new\""
     end
 
-    test "displays delete listing", %{conn: conn, user: user} do
+    test "displays delete auction", %{conn: conn, user: user} do
       conn = Auth.sign_in(conn, user)
       post(conn, Routes.sell_path(conn, :create), auction: @auction_attrs)
       [auction] = Auctions.get_sellers_auctions!(user)

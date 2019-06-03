@@ -17,7 +17,7 @@ defmodule EbaeWeb.SellController do
 
   def delete(conn, %{"id" => id}) do
     Auctions.get_auction!(id)
-    |> Auctions.delete_auction()
+    |> Auctions.delete_auction
     |> delete_reply(conn)
   end
 
@@ -34,13 +34,12 @@ defmodule EbaeWeb.SellController do
   end
 
   defp validate_and_create(conn, auction) do
-    with true <- validate(auction),
-         user <- Auth.current_user(conn),
-         id <- Map.get(user, :id),
-         auction <- Map.put(auction, "user_id", id) do
-      Auctions.create_auction(auction)
+    if (validate(auction)) do
+      user_id = Map.get(Auth.current_user(conn), :id)
+      with_associations = Map.put(auction, "user_id", user_id)
+      Auctions.create_auction(with_associations)
     else
-      _err -> :error
+      :error
     end
   end
 

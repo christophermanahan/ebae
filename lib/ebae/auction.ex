@@ -4,7 +4,11 @@ defmodule Ebae.Auctions do
   alias Ebae.Repo
   alias Ebae.{Auctions.Auction, Auctions.Bid, Accounts.User}
 
-  def get_auction!(id), do: Repo.get!(Auction, id)
+  def get_auction!(id) do
+    Auction
+    |> Repo.get!(id)
+    |> Repo.preload(:bids)
+  end
 
   def get_sellers_auctions!(%User{} = user) do
     Repo.all(from a in Auction, where: a.user_id == ^user.id)
@@ -12,6 +16,7 @@ defmodule Ebae.Auctions do
 
   def get_buyers_auctions!(%User{} = user) do
     Repo.all(from i in Auction, where: i.user_id != ^user.id)
+    |> Repo.preload(:bids)
   end
 
   def create_auction(attrs \\ %{}) do
@@ -35,6 +40,10 @@ defmodule Ebae.Auctions do
   end
 
   def get_bid!(id), do: Repo.get!(Bid, id)
+
+  def get_bids!(%User{} = user) do
+    Repo.all(from b in Bid, where: b.user_id == ^user.id)
+  end
 
   def create_bid(attrs \\ %{}) do
     %Bid{}

@@ -9,19 +9,19 @@
     <p>Description</p>
   </article>
   <article class="column">
-    <p>Initial Price</p>
+    <p>Current Bid</p>
   </article>
 </section>
 <%= for auction <- auctions(@conn) do %>
   <section class="row">
     <article class="column">
-      <p><%= auction.name %></p>
+      <p><%= link(auction.name, to: Routes.buy_path(@conn, :new, auction.id), class: "nav-link") %></p>
     </article>
     <article class="column">
       <p><%= auction.description %></p>
     </article>
     <article class="column">
-      <p><%= auction.initial_price %></p>
+      <p><%= current_price(auction) %></p>
     </article>
   </section>
 <% end %>

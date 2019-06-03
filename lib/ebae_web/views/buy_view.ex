@@ -13,4 +13,14 @@ defmodule EbaeWeb.BuyView do
     |> Auth.current_user
     |> Auctions.get_buyers_auctions!
   end
+
+  def current_price(%{:bids => []} = auction) do
+    auction.initial_price
+  end
+
+  def current_price(auction) do
+    auction.bids
+    |> Enum.map(fn bid -> bid.offer end)
+    |> Enum.max
+  end
 end

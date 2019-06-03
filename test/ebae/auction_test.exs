@@ -15,7 +15,13 @@ defmodule Ebae.AuctionsTest do
     initial_price: "456.7",
     name: "some updated name"
   }
-  @invalid_auction_attrs %{available: nil, description: nil, initial_price: nil, name: nil, user_id: nil}
+  @invalid_auction_attrs %{
+    available: nil,
+    description: nil,
+    initial_price: nil,
+    name: nil,
+    user_id: nil
+  }
 
   @user_attrs %{
     username: "username",
@@ -48,7 +54,9 @@ defmodule Ebae.AuctionsTest do
   end
 
   def fixture(:bid, user_id, auction_id) do
-    {:ok, bid} = Auctions.create_bid(Map.merge(@bid_attrs, %{user_id: user_id, auction_id: auction_id}))
+    {:ok, bid} =
+      Auctions.create_bid(Map.merge(@bid_attrs, %{user_id: user_id, auction_id: auction_id}))
+
     bid
   end
 
@@ -57,27 +65,43 @@ defmodule Ebae.AuctionsTest do
 
     test "get_auction!/1 returns the auction with given id", %{user: user} do
       auction = fixture(:auction, user.id)
-      assert Auctions.get_auction!(auction.id) == auction
+      auction = Auctions.get_auction!(auction.id)
+      assert auction.available == true
+      assert auction.description == "some description"
+      assert auction.initial_price == Decimal.new("120.5")
+      assert auction.name == "some name"
+      assert auction.user_id == user.id
+      assert auction.bids == []
     end
 
     test "get_sellers_auctions!/1 returns the auctions belonging to a given seller", %{user: user} do
-      auction = fixture(:auction, user.id)
-      assert Auctions.get_sellers_auctions!(user) == [auction]
+      fixture(:auction, user.id)
+      [auction] = Auctions.get_sellers_auctions!(user)
+      assert auction.available == true
+      assert auction.description == "some description"
+      assert auction.initial_price == Decimal.new("120.5")
+      assert auction.name == "some name"
+      assert auction.user_id == user.id
     end
 
     test "get_buyers_auctions!/1 returns the auctions that are for sale", %{user: user} do
       Auctions.create_auction(Map.put(@auction_attrs, :user_id, user.id))
 
       {:ok, other_user} = Accounts.create_user(@other_user_attrs)
-      {:ok, other_users_auction} =
-        Auctions.create_auction(Map.put(@other_user_auction_attrs, :user_id, other_user.id))
-
-      assert Auctions.get_buyers_auctions!(user) == [other_users_auction]
+      Auctions.create_auction(Map.put(@other_user_auction_attrs, :user_id, other_user.id))
+      [auction] = Auctions.get_buyers_auctions!(user)
+      assert auction.available == true
+      assert auction.description == "some other description"
+      assert auction.initial_price == Decimal.new("1.00")
+      assert auction.name == "some other name"
+      assert auction.user_id == other_user.id
+      assert auction.bids == []
     end
 
     test "create_auction/1 with valid data creates an auction", %{user: user} do
       assert {:ok, %Auction{} = auction} =
                Auctions.create_auction(Map.put(@auction_attrs, :user_id, user.id))
+
       assert auction.available == true
       assert auction.description == "some description"
       assert auction.initial_price == Decimal.new("120.5")
@@ -100,8 +124,9 @@ defmodule Ebae.AuctionsTest do
 
     test "update_auction/2 with invalid data returns error changeset", %{user: user} do
       auction = fixture(:auction, user.id)
-      assert {:error, %Ecto.Changeset{}} = Auctions.update_auction(auction, @invalid_auction_attrs)
-      assert auction == Auctions.get_auction!(auction.id)
+
+      assert {:error, %Ecto.Changeset{}} =
+               Auctions.update_auction(auction, @invalid_auction_attrs)
     end
 
     test "delete_auction/1 deletes the auction", %{user: user} do
@@ -125,9 +150,20 @@ defmodule Ebae.AuctionsTest do
       assert Auctions.get_bid!(bid.id) == bid
     end
 
+    test "get_bids!/1 returns the user's bids", %{user: user} do
+      auction = fixture(:auction, user.id)
+      bid = fixture(:bid, user.id, auction.id)
+      assert Auctions.get_bids!(user) == [bid]
+    end
+
     test "create_bid/1 with valid data creates a bid", %{user: user} do
       auction = fixture(:auction, user.id)
-      assert {:ok, %Bid{} = bid} = Auctions.create_bid(Map.merge(@bid_attrs, %{user_id: user.id, auction_id: auction.id}))
+
+      assert {:ok, %Bid{} = bid} =
+               Auctions.create_bid(
+                 Map.merge(@bid_attrs, %{user_id: user.id, auction_id: auction.id})
+               )
+
       assert bid.offer == Decimal.new("120.5")
     end
 

@@ -1,7 +1,7 @@
 <h1>Welcome seller <%= username(@conn) %></h1> 
 
-<h2>Your current listings</h2>
-<%= link("Add listing",to: Routes.sell_path(@conn, :new), class: "nav-link") %>
+<h2>Your current auctions</h2>
+<%= link("Add listing", to: Routes.sell_path(@conn, :new), class: "nav-link") %>
 <br></br>
 <section class="row">
   <article class="column">
