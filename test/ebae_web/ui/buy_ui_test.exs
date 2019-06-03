@@ -1,10 +1,10 @@
 defmodule EbaeWeb.BuyUITest do
   use EbaeWeb.ConnCase
 
-  alias Ebae.{Accounts, Auction, Auction.Bid}
+  alias Ebae.{Accounts, Auctions}
 
-  @item_attrs %{
-    name: "some item",
+  @auction_attrs %{
+    name: "some auction",
     description: "some description",
     initial_price: 100.01
   }
@@ -32,12 +32,12 @@ defmodule EbaeWeb.BuyUITest do
       assert html_response(conn, 200) =~ "Welcome buyer #{user.username}"
     end
 
-    test "displays items for sale", %{conn: conn, user: user} do
+    test "displays auctions for sale", %{conn: conn, user: user} do
       {:ok, other_user} = Accounts.create_user(@other_user_attrs)
-      Auction.create_item(Map.put(@item_attrs, :user_id, other_user.id))
+      Auctions.create_auction(Map.put(@auction_attrs, :user_id, other_user.id))
       conn = Auth.sign_in(conn, user)
       conn = get(conn, Routes.buy_path(conn, :index))
-      assert html_response(conn, 200) =~ "some item"
+      assert html_response(conn, 200) =~ "some auction"
       assert html_response(conn, 200) =~ "some description"
       assert html_response(conn, 200) =~ "100.01"
     end

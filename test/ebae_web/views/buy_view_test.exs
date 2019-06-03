@@ -1,10 +1,10 @@
 defmodule EbaeWeb.BuyViewTest do
   use EbaeWeb.ConnCase, async: true
 
-  alias Ebae.{Accounts, Auction}
+  alias Ebae.{Accounts, Auctions}
   alias EbaeWeb.BuyView
 
-  @item_attrs %{
+  @auction_attrs %{
     available: true,
     description: "some description",
     initial_price: "120.50",
@@ -34,15 +34,15 @@ defmodule EbaeWeb.BuyViewTest do
     end
   end
 
-  describe "items" do
+  describe "auctions" do
     setup [:create_user]
 
-    test "returns the current items for sale", %{conn: conn, user: user} do
+    test "returns the current auctions for sale", %{conn: conn, user: user} do
       {:ok, other_user} = Accounts.create_user(@other_user_attrs)
-      Auction.create_item(Map.put(@item_attrs, :user_id, other_user.id))
+      Auctions.create_auction(Map.put(@auction_attrs, :user_id, other_user.id))
       conn = Auth.sign_in(conn, user)
-      items = Auction.get_buyers_items!(user)
-      assert BuyView.items(conn) == items
+      auctions = Auctions.get_buyers_auctions!(user)
+      assert BuyView.auctions(conn) == auctions
     end
   end
 

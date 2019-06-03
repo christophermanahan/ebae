@@ -19,7 +19,7 @@ defmodule EbaeWeb.BuyControllerTest do
     test "renders buyer greeting page", %{conn: conn, user: user} do
       conn = Auth.sign_in(conn, user)
       conn = get(conn, Routes.buy_path(conn, :index))
-      assert html_response(conn, 200) =~ "Items for sale"
+      assert html_response(conn, 200) =~ "Auctions for sale"
     end
   end
 

@@ -1,10 +1,10 @@
 defmodule EbaeWeb.SellViewTest do
   use EbaeWeb.ConnCase, async: true
 
-  alias Ebae.{Accounts, Auction}
+  alias Ebae.{Accounts, Auctions}
   alias EbaeWeb.SellView
 
-  @item_attrs %{
+  @auction_attrs %{
     available: true,
     description: "some description",
     initial_price: "120.5",
@@ -30,14 +30,14 @@ defmodule EbaeWeb.SellViewTest do
     end
   end
 
-  describe "items" do
+  describe "auctions" do
     setup [:create_user]
 
-    test "returns the current user's items", %{conn: conn, user: user} do
+    test "returns the current user's auctions", %{conn: conn, user: user} do
       conn = Auth.sign_in(conn, user)
-      conn = post(conn, Routes.sell_path(conn, :create), item: @item_attrs)
-      items = Auction.get_sellers_items!(user)
-      assert SellView.items(conn) == items
+      conn = post(conn, Routes.sell_path(conn, :create), auction: @auction_attrs)
+      auctions = Auctions.get_sellers_auctions!(user)
+      assert SellView.auctions(conn) == auctions
     end
   end
 

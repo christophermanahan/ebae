@@ -16,19 +16,19 @@
   <article class="column">
   </article>
 </section>
-<%= for item <- items(@conn) do %>
+<%= for auction <- auctions(@conn) do %>
   <section class="row">
     <article class="column">
-      <p><%= item.name %></p>
+      <p><%= auction.name %></p>
     </article>
     <article class="column">
-      <p><%= item.description %></p>
+      <p><%= auction.description %></p>
     </article>
     <article class="column">
-      <p><%= item.initial_price %></p>
+      <p><%= auction.initial_price %></p>
     </article>
     <article class="column">
-      <%= link("x",to: Routes.sell_path(@conn, :delete, item.id), method: :delete, class: "nav-link") %>
+      <%= link("x", to: Routes.sell_path(@conn, :delete, auction.id), method: :delete, class: "nav-link") %>
     </article>
   </section>
 <% end %>

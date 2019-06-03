@@ -1,6 +1,6 @@
 <h1>Welcome buyer <%= username(@conn) %></h1> 
 
-<h2>Items for sale</h2>
+<h2>Auctions for sale</h2>
 <section class="row">
   <article class="column">
     <p>Name</p>
@@ -12,16 +12,16 @@
     <p>Initial Price</p>
   </article>
 </section>
-<%= for item <- items(@conn) do %>
+<%= for auction <- auctions(@conn) do %>
   <section class="row">
     <article class="column">
-      <p><%= item.name %></p>
+      <p><%= auction.name %></p>
     </article>
     <article class="column">
-      <p><%= item.description %></p>
+      <p><%= auction.description %></p>
     </article>
     <article class="column">
-      <p><%= item.initial_price %></p>
+      <p><%= auction.initial_price %></p>
     </article>
   </section>
 <% end %>

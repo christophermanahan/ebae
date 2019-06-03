@@ -1,8 +1,8 @@
-defmodule Ebae.Repo.Migrations.CreateItems do
+defmodule Ebae.Repo.Migrations.CreateAuctions do
   use Ecto.Migration
 
   def change do
-    create table(:items) do
+    create table(:auctions) do
       add :name, :string
       add :description, :string
       add :available, :boolean, default: false, null: false
@@ -12,6 +12,6 @@ defmodule Ebae.Repo.Migrations.CreateItems do
       timestamps()
     end
 
-    create index(:items, [:user_id])
+    create index(:auctions, [:user_id])
   end
 end

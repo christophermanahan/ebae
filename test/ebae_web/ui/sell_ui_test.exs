@@ -1,10 +1,10 @@
 defmodule EbaeWeb.SellUITest do
   use EbaeWeb.ConnCase
 
-  alias Ebae.{Accounts, Auction}
+  alias Ebae.{Accounts, Auctions}
 
-  @item_attrs %{
-    name: "some item",
+  @auction_attrs %{
+    name: "some auction",
     description: "some description",
     initial_price: 100.01
   }
@@ -30,9 +30,9 @@ defmodule EbaeWeb.SellUITest do
 
     test "displays users current listings", %{conn: conn, user: user} do
       conn = Auth.sign_in(conn, user)
-      post(conn, Routes.sell_path(conn, :create), item: @item_attrs)
+      post(conn, Routes.sell_path(conn, :create), auction: @auction_attrs)
       conn = get(conn, Routes.sell_path(conn, :index))
-      assert html_response(conn, 200) =~ "some item"
+      assert html_response(conn, 200) =~ "some auction"
       assert html_response(conn, 200) =~ "some description"
       assert html_response(conn, 200) =~ "100.01"
     end
@@ -45,10 +45,10 @@ defmodule EbaeWeb.SellUITest do
 
     test "displays delete listing", %{conn: conn, user: user} do
       conn = Auth.sign_in(conn, user)
-      post(conn, Routes.sell_path(conn, :create), item: @item_attrs)
-      [item] = Auction.get_sellers_items!(user)
+      post(conn, Routes.sell_path(conn, :create), auction: @auction_attrs)
+      [auction] = Auctions.get_sellers_auctions!(user)
       conn = get(conn, Routes.sell_path(conn, :index))
-      assert html_response(conn, 200) =~ "href=\"/sell/#{item.id}\""
+      assert html_response(conn, 200) =~ "href=\"/sell/#{auction.id}\""
     end
   end
 
