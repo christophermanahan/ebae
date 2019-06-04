@@ -16,7 +16,7 @@ defmodule Ebae.Auctions do
 
   def get_buyers_auctions!(%User{} = user) do
     Repo.all(from i in Auction, where: i.user_id != ^user.id)
-    |> Repo.preload(:bids)
+    |> Repo.preload([bids: from(b in Bid, order_by: [desc: b.offer])])
   end
 
   def create_auction(attrs \\ %{}) do

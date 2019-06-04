@@ -19,8 +19,6 @@ defmodule EbaeWeb.BuyView do
   end
 
   def current_price(auction) do
-    auction.bids
-    |> Enum.map(fn bid -> bid.offer end)
-    |> Enum.max
+    Enum.at(auction.bids, 0).offer
   end
 end

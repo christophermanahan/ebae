@@ -41,6 +41,7 @@ defmodule Ebae.AuctionsTest do
   }
 
   @bid_attrs %{offer: "120.5"}
+  @higher_bid_attrs %{offer: "130.5"}
   @invalid_bid_attrs %{offer: nil, user_id: nil, auction_id: nil}
 
   def fixture(:auction, user_id) do
@@ -48,14 +49,14 @@ defmodule Ebae.AuctionsTest do
     auction
   end
 
-  def fixture(:user) do
-    {:ok, user} = Accounts.create_user(@user_attrs)
+  def fixture(:user, attrs) do
+    {:ok, user} = Accounts.create_user(attrs)
     user
   end
 
-  def fixture(:bid, user_id, auction_id) do
+  def fixture(:bid, attrs, user_id, auction_id) do
     {:ok, bid} =
-      Auctions.create_bid(Map.merge(@bid_attrs, %{user_id: user_id, auction_id: auction_id}))
+      Auctions.create_bid(Map.merge(attrs, %{user_id: user_id, auction_id: auction_id}))
 
     bid
   end
@@ -84,10 +85,8 @@ defmodule Ebae.AuctionsTest do
       assert auction.user_id == user.id
     end
 
-    test "get_buyers_auctions!/1 returns the auctions that are for sale", %{user: user} do
+    test "get_buyers_auctions!/1 returns the auctions that are for sale", %{user: user, other_user: other_user} do
       Auctions.create_auction(Map.put(@auction_attrs, :user_id, user.id))
-
-      {:ok, other_user} = Accounts.create_user(@other_user_attrs)
       Auctions.create_auction(Map.put(@other_user_auction_attrs, :user_id, other_user.id))
       [auction] = Auctions.get_buyers_auctions!(user)
       assert auction.available == true
@@ -96,6 +95,14 @@ defmodule Ebae.AuctionsTest do
       assert auction.name == "some other name"
       assert auction.user_id == other_user.id
       assert auction.bids == []
+    end
+
+    test "get_buyers_auctions!/1 returns the auctions with sorted bids", %{user: user, other_user: other_user} do
+      auction = fixture(:auction, other_user.id)
+      lower_bid = fixture(:bid, @bid_attrs, user.id, auction.id)
+      higher_bid = fixture(:bid, @higher_bid_attrs, user.id, auction.id)
+      [auction] = Auctions.get_buyers_auctions!(user)
+      assert auction.bids == [higher_bid, lower_bid]
     end
 
     test "create_auction/1 with valid data creates an auction", %{user: user} do
@@ -146,13 +153,13 @@ defmodule Ebae.AuctionsTest do
 
     test "get_bid!/1 returns the bid with given id", %{user: user} do
       auction = fixture(:auction, user.id)
-      bid = fixture(:bid, user.id, auction.id)
+      bid = fixture(:bid, @bid_attrs, user.id, auction.id)
       assert Auctions.get_bid!(bid.id) == bid
     end
 
     test "get_bids!/1 returns the user's bids", %{user: user} do
       auction = fixture(:auction, user.id)
-      bid = fixture(:bid, user.id, auction.id)
+      bid = fixture(:bid, @bid_attrs, user.id, auction.id)
       assert Auctions.get_bids!(user) == [bid]
     end
 
@@ -173,12 +180,12 @@ defmodule Ebae.AuctionsTest do
 
     test "change_bid/1 returns a bid changeset", %{user: user} do
       auction = fixture(:auction, user.id)
-      bid = fixture(:bid, user.id, auction.id)
+      bid = fixture(:bid, @bid_attrs, user.id, auction.id)
       assert %Ecto.Changeset{} = Auctions.change_bid(bid)
     end
   end
 
   defp create_user(_) do
-    {:ok, user: fixture(:user)}
+    {:ok, user: fixture(:user, @user_attrs), other_user: fixture(:user, @other_user_attrs)}
   end
 end
