@@ -8,6 +8,10 @@ defmodule EbaeWeb.BuyController do
     render(conn, "index.html")
   end
 
+  def bids(conn, _) do
+    render(conn, "bids.html")
+  end
+
   def new(conn, %{"id" => auction_id}) do
     render(conn, "new.html",
       changeset: Auctions.change_bid(%Bid{}),

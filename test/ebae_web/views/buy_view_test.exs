@@ -53,6 +53,23 @@ defmodule EbaeWeb.BuyViewTest do
     end
   end
 
+  describe "bids" do
+    setup [:create_users]
+
+    test "returns the current auctions for sale", %{
+      conn: conn,
+      user: user,
+      other_user: other_user
+    } do
+      {:ok, auction} = Auctions.create_auction(Map.put(@auction_attrs, :user_id, other_user.id))
+      Auctions.create_bid(Map.merge(@bid_attrs, %{user_id: user.id, auction_id: auction.id}))
+      conn = Auth.sign_in(conn, user)
+      [bid] = BuyView.bids(conn)
+      assert bid.offer == Decimal.from_float(130.5)
+      assert bid.auction == auction
+    end
+  end
+
   describe "current_price" do
     setup [:create_users]
 

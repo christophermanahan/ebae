@@ -29,7 +29,7 @@ defmodule EbaeWeb.BuyControllerTest do
   end
 
   describe "index" do
-    setup [:create_user]
+    setup [:create_users]
 
     test "renders buyer greeting page", %{conn: conn, user: user} do
       conn = Auth.sign_in(conn, user)
@@ -38,8 +38,18 @@ defmodule EbaeWeb.BuyControllerTest do
     end
   end
 
+  describe "bids" do
+    setup [:create_users]
+
+    test "renders buyer bids page", %{conn: conn, user: user} do
+      conn = Auth.sign_in(conn, user)
+      conn = get(conn, Routes.buy_path(conn, :bids))
+      assert html_response(conn, 200) =~ "Your bids"
+    end
+  end
+
   describe "new bid" do
-    setup [:create_user]
+    setup [:create_users]
 
     test "renders new bid form", %{conn: conn, user: user, other_user: other_user} do
       {:ok, auction} = Auctions.create_auction(Map.put(@auction_attrs, :user_id, other_user.id))
@@ -56,7 +66,7 @@ defmodule EbaeWeb.BuyControllerTest do
   end
 
   describe "create" do
-    setup [:create_user]
+    setup [:create_users]
 
     test "creates bid if data is valid", %{conn: conn, user: user, other_user: other_user} do
       {:ok, auction} = Auctions.create_auction(Map.put(@auction_attrs, :user_id, other_user.id))
@@ -101,7 +111,7 @@ defmodule EbaeWeb.BuyControllerTest do
     end
   end
 
-  defp create_user(_) do
+  defp create_users(_) do
     {:ok, user: fixture(:user, @user_attrs), other_user: fixture(:user, @other_user_attrs)}
   end
 end

@@ -167,8 +167,10 @@ defmodule Ebae.AuctionsTest do
 
     test "get_bids!/1 returns the user's bids", %{user: user} do
       auction = fixture(:auction, user.id)
-      bid = fixture(:bid, @bid_attrs, user.id, auction.id)
-      assert Auctions.get_bids!(user) == [bid]
+      fixture(:bid, @bid_attrs, user.id, auction.id)
+      [bid] = Auctions.get_bids!(user)
+      assert bid.offer == Decimal.from_float(120.5)
+      assert bid.auction == auction
     end
 
     test "create_bid/1 with valid data creates a bid", %{user: user} do

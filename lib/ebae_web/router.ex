@@ -48,6 +48,8 @@ defmodule EbaeWeb.Router do
 
     get "/", BuyController, :index
 
+    get "/bids", BuyController, :bids
+
     get "/:id", BuyController, :new
 
     post "/:id", BuyController, :create
