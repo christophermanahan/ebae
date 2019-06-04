@@ -15,6 +15,37 @@ defmodule EbaeWeb.SellController do
     render(conn, "index.html")
   end
 
+  def auction(conn, %{"id" => auction_id}) do
+    conn
+    |> validate_and_get(auction_id)
+    |> auction_reply(conn)
+  end
+
+  defp validate_and_get(conn, auction_id) do
+    auction = Auctions.get_auction!(auction_id)
+    if (validate_owner(auction, conn)) do
+      auction
+    else 
+      :error
+    end
+  end
+
+  defp validate_owner(auction, conn) do
+    Auth.current_user(conn).id == auction.user_id 
+  end
+
+  defp auction_reply(%Auction{} = auction, conn) do
+    render(conn, "auction.html",
+      auction: auction
+    )
+  end
+
+  defp auction_reply(:error, conn) do
+    conn
+    |> put_flash(:error, "Invalid auction")
+    |> redirect(to: Routes.sell_path(conn, :index))
+  end
+
   def delete(conn, %{"id" => id}) do
     Auctions.get_auction!(id)
     |> Auctions.delete_auction

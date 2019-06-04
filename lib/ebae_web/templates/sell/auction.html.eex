@@ -1,0 +1,36 @@
+<h2>Auction details</h2>
+<hr>
+<section class="row">
+  <article class="column">
+    <p>Name</p>
+  </article>
+  <article class="column">
+    <p>Description</p>
+  </article>
+  <article class="column">
+    <p>Initial Price</p>
+  </article>
+</section>
+<section class="row">
+  <article class="column">
+    <p><%= @auction.name %></p>
+  </article>
+  <article class="column">
+    <p><%= @auction.description %></p>
+  </article>
+  <article class="column">
+    <p><%= @auction.initial_price %></p>
+  </article>
+</section>
+<hr>
+<h3>Bids</h3>
+<%= for bid <- @auction.bids do %>
+  <section class="row">
+    <article class="column">
+      <p><%= bid.offer  %></p>
+    </article>
+    <article class="column">
+      <p><%= bid.inserted_at  %></p>
+    </article>
+  </section>
+<% end %>

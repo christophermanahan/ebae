@@ -62,7 +62,7 @@ defmodule Ebae.AuctionsTest do
   end
 
   describe "auctions" do
-    setup [:create_user]
+    setup [:create_users]
 
     test "get_auction!/1 returns the auction with given id", %{user: user} do
       auction = fixture(:auction, user.id)
@@ -73,6 +73,14 @@ defmodule Ebae.AuctionsTest do
       assert auction.name == "some name"
       assert auction.user_id == user.id
       assert auction.bids == []
+    end
+
+    test "get_auction!/1 returns the auction with sorted bids", %{user: user, other_user: other_user} do
+      auction = fixture(:auction, other_user.id)
+      lower_bid = fixture(:bid, @bid_attrs, user.id, auction.id)
+      higher_bid = fixture(:bid, @higher_bid_attrs, user.id, auction.id)
+      auction = Auctions.get_auction!(auction.id)
+      assert auction.bids == [higher_bid, lower_bid]
     end
 
     test "get_sellers_auctions!/1 returns the auctions belonging to a given seller", %{user: user} do
@@ -149,7 +157,7 @@ defmodule Ebae.AuctionsTest do
   end
 
   describe "bids" do
-    setup [:create_user]
+    setup [:create_users]
 
     test "get_bid!/1 returns the bid with given id", %{user: user} do
       auction = fixture(:auction, user.id)
@@ -185,7 +193,7 @@ defmodule Ebae.AuctionsTest do
     end
   end
 
-  defp create_user(_) do
+  defp create_users(_) do
     {:ok, user: fixture(:user, @user_attrs), other_user: fixture(:user, @other_user_attrs)}
   end
 end

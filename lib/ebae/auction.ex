@@ -7,7 +7,7 @@ defmodule Ebae.Auctions do
   def get_auction!(id) do
     Auction
     |> Repo.get!(id)
-    |> Repo.preload(:bids)
+    |> Repo.preload([bids: from(b in Bid, order_by: [desc: b.offer])])
   end
 
   def get_sellers_auctions!(%User{} = user) do
