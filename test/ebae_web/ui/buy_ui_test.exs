@@ -61,6 +61,23 @@ defmodule EbaeWeb.BuyUITest do
       conn = get(conn, Routes.buy_path(conn, :index))
       assert html_response(conn, 200) =~ "href=\"/buy/#{auction.id}\""
     end
+
+    test "displays link to buyers bids", %{conn: conn, user: user} do
+      conn = Auth.sign_in(conn, user)
+      conn = get(conn, Routes.buy_path(conn, :index))
+      assert html_response(conn, 200) =~ "href=\"/buy/bids\""
+    end
+
+    test "displays buyers bids", %{conn: conn, user: user, other_user: other_user} do
+      {:ok, auction} = Auctions.create_auction(Map.put(@auction_attrs, :user_id, other_user.id))
+      {:ok, bid} = Auctions.create_bid(Map.merge(@bid_attrs, %{user_id: user.id, auction_id: auction.id}))
+      conn = Auth.sign_in(conn, user)
+      conn = get(conn, Routes.buy_path(conn, :bids))
+      assert html_response(conn, 200) =~ "some auction"
+      assert html_response(conn, 200) =~ "some description"
+      assert html_response(conn, 200) =~ "205.0"
+      assert html_response(conn, 200) =~ to_string(bid.inserted_at)
+    end
   end
 
   defp create_users(_) do

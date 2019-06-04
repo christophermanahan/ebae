@@ -1,0 +1,33 @@
+<h2>Your bids</h2> 
+
+<section class="row">
+  <article class="column">
+    <p>Name</p>
+  </article>
+  <article class="column">
+    <p>Description</p>
+  </article>
+  <article class="column">
+    <p>Your Bid</p>
+  </article>
+  <article class="column">
+    <p>Offered</p>
+  </article>
+</section>
+<%= for bid <- bids(@conn) do %>
+  <section class="row">
+    <article class="column">
+      <p><%= link(bid.auction.name, to: Routes.buy_path(@conn, :new, bid.auction.id), class: "nav-link") %></p>
+    </article>
+    <article class="column">
+      <p><%= bid.auction.description %></p>
+    </article>
+    <article class="column">
+      <p><%= bid.offer %></p>
+    </article>
+    <article class="column">
+      <p><%= bid.inserted_at %></p>
+    </article>
+  </section>
+<% end %>
+<span><%= link "Back", to: Routes.buy_path(@conn, :index) %></span>

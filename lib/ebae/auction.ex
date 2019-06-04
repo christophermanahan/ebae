@@ -43,6 +43,7 @@ defmodule Ebae.Auctions do
 
   def get_bids!(%User{} = user) do
     Repo.all(from b in Bid, where: b.user_id == ^user.id)
+    |> Repo.preload(:auction)
   end
 
   def create_bid(attrs \\ %{}) do

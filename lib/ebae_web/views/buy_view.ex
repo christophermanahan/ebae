@@ -14,6 +14,12 @@ defmodule EbaeWeb.BuyView do
     |> Auctions.get_buyers_auctions!
   end
 
+  def bids(conn) do
+    conn
+    |> Auth.current_user
+    |> Auctions.get_bids!
+  end
+
   def current_price(%{:bids => []} = auction) do
     auction.initial_price
   end

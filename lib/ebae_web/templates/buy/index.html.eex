@@ -1,5 +1,6 @@
 <h1>Welcome buyer <%= username(@conn) %></h1> 
-
+<h4><%= link("Your bids", to: Routes.buy_path(@conn, :bids), class: "nav-link") %></h4>
+<hr>
 <h2>Auctions for sale</h2>
 <section class="row">
   <article class="column">
