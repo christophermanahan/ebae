@@ -19,7 +19,7 @@
 <%= for auction <- auctions(@conn) do %>
   <section class="row">
     <article class="column">
-      <p><%= auction.name %></p>
+      <p><%= link(auction.name, to: Routes.sell_path(@conn, :auction, auction.id), class: "nav-link") %></p>
     </article>
     <article class="column">
       <p><%= auction.description %></p>
