@@ -1,12 +1,12 @@
 defmodule EbaeWeb.SellController do
   use EbaeWeb, :controller
 
-  alias Ebae.{Auction, Auction.Item}
+  alias Ebae.{Auctions, Auctions.Auction}
   alias EbaeWeb.Auth
 
   def new(conn, _) do
     render(conn, "new.html",
-      changeset: Auction.change_item(%Item{}),
+      changeset: Auctions.change_auction(%Auction{}),
       action: Routes.sell_path(conn, :create)
     )
   end
@@ -16,8 +16,8 @@ defmodule EbaeWeb.SellController do
   end
 
   def delete(conn, %{"id" => id}) do
-    Auction.get_item!(id)
-    |> Auction.delete_item()
+    Auctions.get_auction!(id)
+    |> Auctions.delete_auction
     |> delete_reply(conn)
   end
 
@@ -27,25 +27,24 @@ defmodule EbaeWeb.SellController do
     |> redirect(to: Routes.sell_path(conn, :index))
   end
 
-  def create(conn, %{"item" => item}) do
+  def create(conn, %{"auction" => auction}) do
     conn
-    |> validate_and_create(item)
+    |> validate_and_create(auction)
     |> create_reply(conn)
   end
 
-  defp validate_and_create(conn, item) do
-    with true <- validate(item),
-         user <- Auth.current_user(conn),
-         id <- Map.get(user, :id),
-         item <- Map.put(item, "user_id", id) do
-      Auction.create_item(item)
+  defp validate_and_create(conn, auction) do
+    if (validate(auction)) do
+      user_id = Map.get(Auth.current_user(conn), :id)
+      with_associations = Map.put(auction, "user_id", user_id)
+      Auctions.create_auction(with_associations)
     else
-      _err -> :error
+      :error
     end
   end
 
-  defp validate(item) do
-    Map.values(item)
+  defp validate(auction) do
+    Map.values(auction)
     |> Enum.all?(fn key -> key != "" end)
   end
 

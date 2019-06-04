@@ -1,11 +1,11 @@
-alias Ebae.{Accounts, Auction}
+alias Ebae.{Accounts, Auctions}
 
 user_attrs = %{
   username: "username",
   credential: %{email: "email", password: "password"}
 }
 
-item_attrs = %{
+auction_attrs = %{
   available: true,
   description: "some description",
   initial_price: "120.5",
@@ -14,4 +14,4 @@ item_attrs = %{
 
 {:ok, user} = Accounts.create_user(user_attrs)
 
-Auction.create_item(Map.put(item_attrs, :user_id, user.id))
+Auctions.create_auction(Map.put(auction_attrs, :user_id, user.id))

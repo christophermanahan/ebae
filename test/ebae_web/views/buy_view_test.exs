@@ -1,14 +1,18 @@
 defmodule EbaeWeb.BuyViewTest do
   use EbaeWeb.ConnCase, async: true
 
-  alias Ebae.{Accounts, Auction}
+  alias Ebae.{Accounts, Auctions}
   alias EbaeWeb.BuyView
 
-  @item_attrs %{
+  @auction_attrs %{
     available: true,
     description: "some description",
-    initial_price: "120.50",
+    initial_price: "120.5",
     name: "some name"
+  }
+
+  @bid_attrs %{
+    offer: 130.5
   }
 
   @user_attrs %{
@@ -20,13 +24,13 @@ defmodule EbaeWeb.BuyViewTest do
     credential: %{email: "other email", password: "password"}
   }
 
-  def fixture(:user) do
-    {:ok, user} = Accounts.create_user(@user_attrs)
+  def fixture(:user, attrs) do
+    {:ok, user} = Accounts.create_user(attrs)
     user
   end
 
   describe "username" do
-    setup [:create_user]
+    setup [:create_users]
 
     test "returns the current user", %{conn: conn, user: user} do
       conn = Auth.sign_in(conn, user)
@@ -34,19 +38,37 @@ defmodule EbaeWeb.BuyViewTest do
     end
   end
 
-  describe "items" do
-    setup [:create_user]
+  describe "auctions" do
+    setup [:create_users]
 
-    test "returns the current items for sale", %{conn: conn, user: user} do
-      {:ok, other_user} = Accounts.create_user(@other_user_attrs)
-      Auction.create_item(Map.put(@item_attrs, :user_id, other_user.id))
+    test "returns the current auctions for sale", %{
+      conn: conn,
+      user: user,
+      other_user: other_user
+    } do
+      Auctions.create_auction(Map.put(@auction_attrs, :user_id, other_user.id))
       conn = Auth.sign_in(conn, user)
-      items = Auction.get_buyers_items!(user)
-      assert BuyView.items(conn) == items
+      auctions = Auctions.get_buyers_auctions!(user)
+      assert BuyView.auctions(conn) == auctions
     end
   end
 
-  defp create_user(_) do
-    {:ok, user: fixture(:user)}
+  describe "current_price" do
+    setup [:create_users]
+
+    test "returns the highest bid", %{user: user, other_user: other_user} do
+      {:ok, auction} = Auctions.create_auction(Map.put(@auction_attrs, :user_id, other_user.id))
+      Auctions.create_bid(Map.merge(@bid_attrs, %{user_id: user.id, auction_id: auction.id}))
+      assert BuyView.current_price(Auctions.get_auction!(auction.id)) == Decimal.from_float(130.5)
+    end
+
+    test "returns the initial price if there are no bids", %{user: user} do
+      {:ok, auction} = Auctions.create_auction(Map.put(@auction_attrs, :user_id, user.id))
+      assert BuyView.current_price(Auctions.get_auction!(auction.id)) == Decimal.from_float(120.5)
+    end
+  end
+
+  defp create_users(_) do
+    {:ok, user: fixture(:user, @user_attrs), other_user: fixture(:user, @other_user_attrs)}
   end
 end

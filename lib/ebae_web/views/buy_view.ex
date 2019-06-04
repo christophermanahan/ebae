@@ -2,15 +2,23 @@ defmodule EbaeWeb.BuyView do
   use EbaeWeb, :view
 
   alias EbaeWeb.Auth
-  alias Ebae.Auction
+  alias Ebae.Auctions
 
   def username(conn) do
     Auth.current_user(conn).username
   end
 
-  def items(conn) do
+  def auctions(conn) do
     conn
     |> Auth.current_user
-    |> Auction.get_buyers_items!
+    |> Auctions.get_buyers_auctions!
+  end
+
+  def current_price(%{:bids => []} = auction) do
+    auction.initial_price
+  end
+
+  def current_price(auction) do
+    Enum.at(auction.bids, 0).offer
   end
 end
