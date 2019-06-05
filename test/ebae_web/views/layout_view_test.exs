@@ -4,13 +4,13 @@ defmodule EbaeWeb.LayoutViewTest do
   alias Ebae.Accounts
   alias EbaeWeb.LayoutView
 
-  @create_attrs %{
-    username: "username",
-    credential: %{email: "email", password: "password"}
+  @user_attrs %{
+    "username" => "username",
+    "credential" => %{email: "email", password: "password"}
   }
 
   def fixture(:user) do
-    {:ok, user} = Accounts.create_user(@create_attrs)
+    {:ok, user} = Accounts.create_user(@user_attrs)
     user
   end
 

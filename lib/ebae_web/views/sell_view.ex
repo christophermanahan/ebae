@@ -10,7 +10,7 @@ defmodule EbaeWeb.SellView do
 
   def auctions(conn) do
     conn
-    |> Auth.current_user
-    |> Auctions.get_sellers_auctions!
+    |> Auth.current_user()
+    |> Auctions.get_sellers_auctions!()
   end
 end

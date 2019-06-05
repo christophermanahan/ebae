@@ -52,6 +52,8 @@ defmodule EbaeWeb.Router do
 
     get "/bids", BuyController, :bids
 
+    get "/won", BuyController, :won
+ 
     resources "/:id", BuyController, only: [:new, :create]
   end
 end

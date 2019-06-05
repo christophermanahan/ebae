@@ -5,15 +5,16 @@ defmodule EbaeWeb.SellViewTest do
   alias EbaeWeb.SellView
 
   @auction_attrs %{
-    available: true,
-    description: "some description",
-    initial_price: "120.5",
-    name: "some name"
+    "start" => %{"day" => "1", "hour" => 10, "minute" => "0", "month" => "1", "year" => "2019"},
+    "finish" => %{"day" => "1", "hour" => 10, "minute" => "0", "month" => "2", "year" => "2019"},
+    "description" => "some description",
+    "initial_price" => "120.5",
+    "name" => "some name"
   }
 
   @user_attrs %{
-    username: "username",
-    credential: %{email: "email", password: "password"}
+    "username" => "username",
+    "credential" => %{email: "email", password: "password"}
   }
 
   def fixture(:user) do

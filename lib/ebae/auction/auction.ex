@@ -17,8 +17,8 @@ defmodule Ebae.Auctions.Auction do
     timestamps()
   end
 
-  def changeset(auction, attrs) do
-    auction
+  def changeset(changeset, attrs) do
+    changeset
     |> cast(attrs, [:name, :description, :start, :finish, :initial_price, :user_id])
     |> validate_required([:name, :description, :start, :finish, :initial_price, :user_id])
   end

@@ -12,6 +12,10 @@ defmodule EbaeWeb.BuyController do
     render(conn, "bids.html")
   end
 
+  def won(conn, _) do
+    render(conn, "won.html")
+  end
+
   def new(conn, %{"id" => auction_id}) do
     render(conn, "new.html",
       changeset: Auctions.change_bid(%Bid{}),
@@ -26,7 +30,7 @@ defmodule EbaeWeb.BuyController do
   end
 
   defp validate_and_create(conn, bid, auction_id) do
-    if (validate(bid)) do
+    if validate(bid) do
       user_id = Map.get(Auth.current_user(conn), :id)
       with_associations = Map.merge(bid, %{"user_id" => user_id, "auction_id" => auction_id})
       Auctions.create_bid(with_associations)

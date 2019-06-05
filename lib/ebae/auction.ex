@@ -19,10 +19,21 @@ defmodule Ebae.Auctions do
     |> Repo.preload([bids: from(b in Bid, order_by: [desc: b.offer])])
   end
 
-  def create_auction(attrs \\ %{}) do
-    %Auction{}
-    |> Auction.changeset(attrs)
-    |> Repo.insert()
+  def create_auction(attrs, datetime \\ DateTime) do
+    if validate_datetimes(attrs, datetime) do
+      %Auction{}
+      |> Auction.changeset(attrs)
+      |> Repo.insert()
+    else
+      {:error, :datetime}
+    end
+  end
+
+  defp validate_datetimes(%{"start" => start, "finish" => finish}, datetime) do
+    now = datetime.utc_now
+    datetime.compare(start, finish) == :lt && 
+    datetime.compare(now, start) == :lt && 
+    datetime.compare(now, finish) == :lt
   end
 
   def update_auction(%Auction{} = auction, attrs) do

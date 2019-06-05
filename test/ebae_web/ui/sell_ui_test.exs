@@ -4,24 +4,30 @@ defmodule EbaeWeb.SellUITest do
 
   alias Ebae.{Accounts, Auctions}
 
-  {:ok, start} = DateTime.from_naive(~N[2019-01-01 10:00:00], "Etc/UTC")
-  {:ok, finish} = DateTime.from_naive(~N[2019-02-01 10:00:00], "Etc/UTC")
+  defmodule MockDateTime do
+    defdelegate compare(datetime1, datetime2), to: DateTime
+
+    def utc_now do
+      {:ok, now} = DateTime.from_naive(~N[2018-01-01 10:00:00], "Etc/UTC")
+      now
+    end
+  end
 
   @auction_attrs %{
-    start: start,
-    finish: finish,
-    description: "some description",
-    initial_price: "120.5",
-    name: "some name"
+    "start" => %{"day" => "1", "hour" => 10, "minute" => "0", "month" => "1", "year" => "2019"},
+    "finish" => %{"day" => "1", "hour" => 10, "minute" => "0", "month" => "2", "year" => "2019"},
+    "description" => "some description",
+    "initial_price" => "120.5",
+    "name" => "some name"
   }
 
   @user_attrs %{
-    username: "username",
-    credential: %{email: "email", password: "password"}
+    "username" => "username",
+    "credential" => %{email: "email", password: "password"}
   }
   @other_user_attrs %{
-    username: "other username",
-    credential: %{email: "other email", password: "password"}
+    "username" => "other username",
+    "credential" => %{email: "other email", password: "password"}
   }
 
   @bid_attrs %{offer: "120.5"}
@@ -50,7 +56,7 @@ defmodule EbaeWeb.SellUITest do
 
     test "displays users current auctions", %{conn: conn, user: user} do
       conn = Auth.sign_in(conn, user)
-      post(conn, Routes.sell_path(conn, :create), auction: @auction_attrs)
+      post(conn, Routes.sell_path(conn, :create), auction: @auction_attrs, datetime: MockDateTime)
       conn = get(conn, Routes.sell_path(conn, :sell))
       assert html_response(conn, 200) =~ "some name"
       assert html_response(conn, 200) =~ "some description"
@@ -59,7 +65,7 @@ defmodule EbaeWeb.SellUITest do
 
     test "displays auction details page", %{conn: conn, user: user} do
       conn = Auth.sign_in(conn, user)
-      post(conn, Routes.sell_path(conn, :create), auction: @auction_attrs)
+      post(conn, Routes.sell_path(conn, :create), auction: @auction_attrs, datetime: MockDateTime)
       [auction] = Auctions.get_sellers_auctions!(user)
       conn = get(conn, Routes.sell_path(conn, :sell))
       assert html_response(conn, 200) =~ "href=\"/sell/#{auction.id}\">some name</a>"
@@ -67,7 +73,7 @@ defmodule EbaeWeb.SellUITest do
 
     test "displays auction bids", %{conn: conn, user: user, other_user: other_user} do
       conn = Auth.sign_in(conn, user)
-      post(conn, Routes.sell_path(conn, :create), auction: @auction_attrs)
+      post(conn, Routes.sell_path(conn, :create), auction: @auction_attrs, datetime: MockDateTime)
       [auction] = Auctions.get_sellers_auctions!(user)
       fixture(:bid, @bid_attrs, other_user.id, auction.id)
       fixture(:bid, @higher_bid_attrs, other_user.id, auction.id)
@@ -84,10 +90,12 @@ defmodule EbaeWeb.SellUITest do
 
     test "displays delete auction", %{conn: conn, user: user} do
       conn = Auth.sign_in(conn, user)
-      post(conn, Routes.sell_path(conn, :create), auction: @auction_attrs)
+      post(conn, Routes.sell_path(conn, :create), auction: @auction_attrs, datetime: MockDateTime)
       [auction] = Auctions.get_sellers_auctions!(user)
       conn = get(conn, Routes.sell_path(conn, :sell))
-      assert html_response(conn, 200) =~ "data-method=\"delete\" data-to=\"/sell/#{auction.id}\" href=\"/sell/#{auction.id}\""
+
+      assert html_response(conn, 200) =~
+               "data-method=\"delete\" data-to=\"/sell/#{auction.id}\" href=\"/sell/#{auction.id}\""
     end
   end
 

@@ -3,13 +3,13 @@ defmodule EbaeWeb.AuthTest do
 
   alias Ebae.{Accounts, Accounts.Guardian}
 
-  @create_attrs %{
-    username: "username",
-    credential: %{email: "email", password: "password"}
+  @user_attrs %{
+    "username" => "username",
+    "credential" => %{email: "email", password: "password"}
   }
 
   def fixture(:user) do
-    {:ok, user} = Accounts.create_user(@create_attrs)
+    {:ok, user} = Accounts.create_user(@user_attrs)
     user
   end
 

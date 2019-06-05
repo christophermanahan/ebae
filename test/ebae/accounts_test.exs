@@ -3,21 +3,17 @@ defmodule Ebae.AccountsTest do
 
   alias Ebae.{Accounts, Accounts.User, Accounts.Guardian, Accounts.ErrorHandler}
 
-  @create_attrs %{
-    username: "username",
-    credential: %{email: "email", password: "password"}
-  }
-  @update_attrs %{
-    username: "updated username",
-    credential: %{email: "updated email", password: "updated password"}
+  @user_attrs %{
+    "username" => "username",
+    "credential" => %{email: "email", password: "password"}
   }
   @invalid_attrs %{
-    username: nil,
-    credential: %{email: nil, password: nil}
+    "username" => nil,
+    "credential" => nil
   }
 
   def fixture(:user) do
-    {:ok, user} = Accounts.create_user(@create_attrs)
+    {:ok, user} = Accounts.create_user(@user_attrs)
     user
   end
 
@@ -36,18 +32,6 @@ defmodule Ebae.AccountsTest do
 
     test "create_user/1 with invalid data returns error changeset" do
       assert {:error, %Ecto.Changeset{}} = Accounts.create_user(@invalid_attrs)
-    end
-
-    test "update_user/2 with valid data updates the user", %{user: user} do
-      assert {:ok, %User{} = user} = Accounts.update_user(user, @update_attrs)
-      assert user.username == "updated username"
-      assert user.credential.email == "updated email"
-      assert Argon2.verify_pass("updated password", user.credential.password)
-    end
-
-    test "update_user/2 with invalid data returns error changeset", %{user: user} do
-      assert {:error, %Ecto.Changeset{}} = Accounts.update_user(user, @invalid_attrs)
-      assert user == Accounts.get_user!(user.id)
     end
 
     test "delete_user/1 deletes the user", %{user: user} do

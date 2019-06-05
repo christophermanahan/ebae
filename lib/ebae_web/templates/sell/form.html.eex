@@ -2,6 +2,8 @@
   <%= render "text_field.html", f: f, key: :name %>
   <%= render "text_field.html", f: f, key: :description %>
   <%= render "text_field.html", f: f, key: :initial_price %>
+  <%= render "date_field.html", f: f, key: :start %>
+  <%= render "date_field.html", f: f, key: :finish %>
 
   <div>
     <%= submit "Submit" %>
