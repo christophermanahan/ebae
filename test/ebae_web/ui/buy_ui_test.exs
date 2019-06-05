@@ -3,10 +3,15 @@ defmodule EbaeWeb.BuyUITest do
 
   alias Ebae.{Accounts, Auctions}
 
+  {:ok, start} = DateTime.from_naive(~N[2019-01-01 10:00:00], "Etc/UTC")
+  {:ok, finish} = DateTime.from_naive(~N[2019-02-01 10:00:00], "Etc/UTC")
+
   @auction_attrs %{
-    name: "some auction",
+    start: start,
+    finish: finish,
     description: "some description",
-    initial_price: 200.0
+    initial_price: "120.5",
+    name: "some name"
   }
 
   @bid_attrs %{
@@ -32,25 +37,25 @@ defmodule EbaeWeb.BuyUITest do
 
     test "displays greeting", %{conn: conn, user: user} do
       conn = Auth.sign_in(conn, user)
-      conn = get(conn, Routes.buy_path(conn, :index))
+      conn = get(conn, Routes.buy_path(conn, :buy))
       assert html_response(conn, 200) =~ "Welcome buyer #{user.username}"
     end
 
     test "displays auctions for sale", %{conn: conn, user: user, other_user: other_user} do
       Auctions.create_auction(Map.put(@auction_attrs, :user_id, other_user.id))
       conn = Auth.sign_in(conn, user)
-      conn = get(conn, Routes.buy_path(conn, :index))
-      assert html_response(conn, 200) =~ "some auction"
+      conn = get(conn, Routes.buy_path(conn, :buy))
+      assert html_response(conn, 200) =~ "some name"
       assert html_response(conn, 200) =~ "some description"
-      assert html_response(conn, 200) =~ "200.0"
+      assert html_response(conn, 200) =~ "120.5"
     end
 
     test "displays auctions with current bid", %{conn: conn, user: user, other_user: other_user} do
       {:ok, auction} = Auctions.create_auction(Map.put(@auction_attrs, :user_id, other_user.id))
       Auctions.create_bid(Map.merge(@bid_attrs, %{user_id: user.id, auction_id: auction.id}))
       conn = Auth.sign_in(conn, user)
-      conn = get(conn, Routes.buy_path(conn, :index))
-      assert html_response(conn, 200) =~ "some auction"
+      conn = get(conn, Routes.buy_path(conn, :buy))
+      assert html_response(conn, 200) =~ "some name"
       assert html_response(conn, 200) =~ "some description"
       assert html_response(conn, 200) =~ "205.0"
     end
@@ -58,13 +63,13 @@ defmodule EbaeWeb.BuyUITest do
     test "displays link to item bid creation", %{conn: conn, user: user, other_user: other_user} do
       {:ok, auction} = Auctions.create_auction(Map.put(@auction_attrs, :user_id, other_user.id))
       conn = Auth.sign_in(conn, user)
-      conn = get(conn, Routes.buy_path(conn, :index))
-      assert html_response(conn, 200) =~ "href=\"/buy/#{auction.id}\""
+      conn = get(conn, Routes.buy_path(conn, :buy))
+      assert html_response(conn, 200) =~ "href=\"/buy/#{auction.id}/new\""
     end
 
     test "displays link to buyers bids", %{conn: conn, user: user} do
       conn = Auth.sign_in(conn, user)
-      conn = get(conn, Routes.buy_path(conn, :index))
+      conn = get(conn, Routes.buy_path(conn, :buy))
       assert html_response(conn, 200) =~ "href=\"/buy/bids\""
     end
 
@@ -73,7 +78,7 @@ defmodule EbaeWeb.BuyUITest do
       {:ok, bid} = Auctions.create_bid(Map.merge(@bid_attrs, %{user_id: user.id, auction_id: auction.id}))
       conn = Auth.sign_in(conn, user)
       conn = get(conn, Routes.buy_path(conn, :bids))
-      assert html_response(conn, 200) =~ "some auction"
+      assert html_response(conn, 200) =~ "some name"
       assert html_response(conn, 200) =~ "some description"
       assert html_response(conn, 200) =~ "205.0"
       assert html_response(conn, 200) =~ to_string(bid.inserted_at)

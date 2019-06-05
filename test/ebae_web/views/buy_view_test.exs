@@ -4,8 +4,12 @@ defmodule EbaeWeb.BuyViewTest do
   alias Ebae.{Accounts, Auctions}
   alias EbaeWeb.BuyView
 
+  {:ok, start} = DateTime.from_naive(~N[2019-01-01 10:00:00], "Etc/UTC")
+  {:ok, finish} = DateTime.from_naive(~N[2019-02-01 10:00:00], "Etc/UTC")
+
   @auction_attrs %{
-    available: true,
+    start: start,
+    finish: finish,
     description: "some description",
     initial_price: "120.5",
     name: "some name"

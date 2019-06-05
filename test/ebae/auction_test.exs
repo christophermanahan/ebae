@@ -3,20 +3,26 @@ defmodule Ebae.AuctionsTest do
 
   alias Ebae.{Auctions, Accounts, Auctions.Auction, Auctions.Bid}
 
+  {:ok, start} = DateTime.from_naive(~N[2019-01-01 10:00:00], "Etc/UTC")
+  {:ok, finish} = DateTime.from_naive(~N[2019-02-01 10:00:00], "Etc/UTC")
+
   @auction_attrs %{
-    available: true,
+    start: start,
+    finish: finish,
     description: "some description",
     initial_price: "120.5",
     name: "some name"
   }
   @update_attrs %{
-    available: false,
+    start: start,
+    finish: finish,
     description: "some updated description",
     initial_price: "456.7",
     name: "some updated name"
   }
   @invalid_auction_attrs %{
-    available: nil,
+    start: nil,
+    end: nil,
     description: nil,
     initial_price: nil,
     name: nil,
@@ -29,7 +35,8 @@ defmodule Ebae.AuctionsTest do
   }
 
   @other_user_auction_attrs %{
-    available: true,
+    start: start,
+    finish: finish,
     description: "some other description",
     initial_price: "1.00",
     name: "some other name"
@@ -67,7 +74,10 @@ defmodule Ebae.AuctionsTest do
     test "get_auction!/1 returns the auction with given id", %{user: user} do
       auction = fixture(:auction, user.id)
       auction = Auctions.get_auction!(auction.id)
-      assert auction.available == true
+      {:ok, start} = DateTime.from_naive(~N[2019-01-01 10:00:00], "Etc/UTC")
+      {:ok, finish} = DateTime.from_naive(~N[2019-02-01 10:00:00], "Etc/UTC")
+      assert auction.start == start
+      assert auction.finish == finish
       assert auction.description == "some description"
       assert auction.initial_price == Decimal.new("120.5")
       assert auction.name == "some name"
@@ -86,7 +96,10 @@ defmodule Ebae.AuctionsTest do
     test "get_sellers_auctions!/1 returns the auctions belonging to a given seller", %{user: user} do
       fixture(:auction, user.id)
       [auction] = Auctions.get_sellers_auctions!(user)
-      assert auction.available == true
+      {:ok, start} = DateTime.from_naive(~N[2019-01-01 10:00:00], "Etc/UTC")
+      {:ok, finish} = DateTime.from_naive(~N[2019-02-01 10:00:00], "Etc/UTC")
+      assert auction.start == start
+      assert auction.finish == finish
       assert auction.description == "some description"
       assert auction.initial_price == Decimal.new("120.5")
       assert auction.name == "some name"
@@ -97,7 +110,10 @@ defmodule Ebae.AuctionsTest do
       Auctions.create_auction(Map.put(@auction_attrs, :user_id, user.id))
       Auctions.create_auction(Map.put(@other_user_auction_attrs, :user_id, other_user.id))
       [auction] = Auctions.get_buyers_auctions!(user)
-      assert auction.available == true
+      {:ok, start} = DateTime.from_naive(~N[2019-01-01 10:00:00], "Etc/UTC")
+      {:ok, finish} = DateTime.from_naive(~N[2019-02-01 10:00:00], "Etc/UTC")
+      assert auction.start == start
+      assert auction.finish == finish
       assert auction.description == "some other description"
       assert auction.initial_price == Decimal.new("1.00")
       assert auction.name == "some other name"
@@ -117,7 +133,10 @@ defmodule Ebae.AuctionsTest do
       assert {:ok, %Auction{} = auction} =
                Auctions.create_auction(Map.put(@auction_attrs, :user_id, user.id))
 
-      assert auction.available == true
+      {:ok, start} = DateTime.from_naive(~N[2019-01-01 10:00:00], "Etc/UTC")
+      {:ok, finish} = DateTime.from_naive(~N[2019-02-01 10:00:00], "Etc/UTC")
+      assert auction.start == start
+      assert auction.finish == finish
       assert auction.description == "some description"
       assert auction.initial_price == Decimal.new("120.5")
       assert auction.name == "some name"
@@ -131,7 +150,10 @@ defmodule Ebae.AuctionsTest do
     test "update_auction/2 with valid data updates the auction", %{user: user} do
       auction = fixture(:auction, user.id)
       assert {:ok, %Auction{} = auction} = Auctions.update_auction(auction, @update_attrs)
-      assert auction.available == false
+      {:ok, start} = DateTime.from_naive(~N[2019-01-01 10:00:00], "Etc/UTC")
+      {:ok, finish} = DateTime.from_naive(~N[2019-02-01 10:00:00], "Etc/UTC")
+      assert auction.start == start
+      assert auction.finish == finish
       assert auction.description == "some updated description"
       assert auction.initial_price == Decimal.new("456.7")
       assert auction.name == "some updated name"

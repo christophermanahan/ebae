@@ -4,15 +4,15 @@ defmodule EbaeWeb.SellController do
   alias Ebae.{Auctions, Auctions.Auction}
   alias EbaeWeb.Auth
 
+  def sell(conn, _) do
+    render(conn, "sell.html")
+  end
+
   def new(conn, _) do
     render(conn, "new.html",
       changeset: Auctions.change_auction(%Auction{}),
       action: Routes.sell_path(conn, :create)
     )
-  end
-
-  def index(conn, _) do
-    render(conn, "index.html")
   end
 
   def auction(conn, %{"id" => auction_id}) do
@@ -43,7 +43,7 @@ defmodule EbaeWeb.SellController do
   defp auction_reply(:error, conn) do
     conn
     |> put_flash(:error, "Invalid auction")
-    |> redirect(to: Routes.sell_path(conn, :index))
+    |> redirect(to: Routes.sell_path(conn, :sell))
   end
 
   def delete(conn, %{"id" => id}) do
@@ -55,7 +55,7 @@ defmodule EbaeWeb.SellController do
   defp delete_reply({:ok, _}, conn) do
     conn
     |> put_flash(:info, "Listing successfully deleted")
-    |> redirect(to: Routes.sell_path(conn, :index))
+    |> redirect(to: Routes.sell_path(conn, :sell))
   end
 
   def create(conn, %{"auction" => auction}) do
@@ -82,7 +82,7 @@ defmodule EbaeWeb.SellController do
   defp create_reply({:ok, _}, conn) do
     conn
     |> put_flash(:info, "Listing successfully added")
-    |> redirect(to: Routes.sell_path(conn, :index))
+    |> redirect(to: Routes.sell_path(conn, :sell))
   end
 
   defp create_reply({:error, _}, conn) do

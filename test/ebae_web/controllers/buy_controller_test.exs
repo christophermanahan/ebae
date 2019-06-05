@@ -7,8 +7,12 @@ defmodule EbaeWeb.BuyControllerTest do
   @invalid_offer_attrs %{offer: "not a number"}
   @nil_bid_attrs %{offer: nil}
 
+  {:ok, start} = DateTime.from_naive(~N[2019-01-01 10:00:00], "Etc/UTC")
+  {:ok, finish} = DateTime.from_naive(~N[2019-02-01 10:00:00], "Etc/UTC")
+
   @auction_attrs %{
-    available: true,
+    start: start,
+    finish: finish,
     description: "some description",
     initial_price: "120.5",
     name: "some name"
@@ -33,7 +37,7 @@ defmodule EbaeWeb.BuyControllerTest do
 
     test "renders buyer greeting page", %{conn: conn, user: user} do
       conn = Auth.sign_in(conn, user)
-      conn = get(conn, Routes.buy_path(conn, :index))
+      conn = get(conn, Routes.buy_path(conn, :buy))
       assert html_response(conn, 200) =~ "Auctions for sale"
     end
   end
@@ -87,7 +91,7 @@ defmodule EbaeWeb.BuyControllerTest do
       conn = Auth.sign_in(conn, user)
       conn = post(conn, Routes.buy_path(conn, :create, auction.id), bid: @bid_attrs)
       assert get_flash(conn, :info) == "Bid successfully offered"
-      assert redirected_to(conn) == Routes.buy_path(conn, :index)
+      assert redirected_to(conn) == Routes.buy_path(conn, :buy)
     end
 
     test "renders error when create auction fails", %{

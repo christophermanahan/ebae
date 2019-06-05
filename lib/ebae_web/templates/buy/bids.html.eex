@@ -30,4 +30,4 @@
     </article>
   </section>
 <% end %>
-<span><%= link "Back", to: Routes.buy_path(@conn, :index) %></span>
+<span><%= link "Back", to: Routes.buy_path(@conn, :buy) %></span>

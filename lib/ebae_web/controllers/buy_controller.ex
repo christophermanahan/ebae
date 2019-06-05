@@ -4,8 +4,8 @@ defmodule EbaeWeb.BuyController do
   alias Ebae.{Auctions, Auctions.Bid}
   alias EbaeWeb.Auth
 
-  def index(conn, _) do
-    render(conn, "index.html")
+  def buy(conn, _) do
+    render(conn, "buy.html")
   end
 
   def bids(conn, _) do
@@ -42,7 +42,7 @@ defmodule EbaeWeb.BuyController do
   defp create_reply({:ok, _}, conn, _) do
     conn
     |> put_flash(:info, "Bid successfully offered")
-    |> redirect(to: Routes.buy_path(conn, :index))
+    |> redirect(to: Routes.buy_path(conn, :buy))
   end
 
   defp create_reply({:error, _}, conn, auction_id) do
