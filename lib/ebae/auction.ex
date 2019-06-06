@@ -7,16 +7,24 @@ defmodule Ebae.Auctions do
   def get_auction!(id) do
     Auction
     |> Repo.get!(id)
-    |> Repo.preload([bids: from(b in Bid, order_by: [desc: b.offer])])
+    |> Repo.preload(bids: from(b in Bid, order_by: [desc: b.offer]))
   end
 
   def get_sellers_auctions!(%User{} = user) do
     Repo.all(from a in Auction, where: a.user_id == ^user.id)
   end
 
-  def get_buyers_auctions!(%User{} = user) do
-    Repo.all(from i in Auction, where: i.user_id != ^user.id)
-    |> Repo.preload([bids: from(b in Bid, order_by: [desc: b.offer])])
+  def get_buyers_auctions!(%User{} = user, datetime \\ DateTime) do
+    now = datetime.utc_now
+    Repo.all(from a in Auction, where: a.user_id != ^user.id and a.start < ^now and a.finish > ^now)
+    |> Repo.preload(bids: from(b in Bid, order_by: [desc: b.offer]))
+  end
+
+  def won!(%User{} = user, datetime \\ DateTime) do
+    now = datetime.utc_now
+    Repo.all(from a in Auction, where: a.user_id != ^user.id and a.start < ^now and a.finish < ^now)
+    |> Repo.preload(bids: from(b in Bid, order_by: [desc: b.offer]))
+    |> Enum.filter(fn auction -> Enum.at(auction.bids, 0).user_id == user.id end)
   end
 
   def create_auction(attrs, datetime \\ DateTime) do
@@ -31,9 +39,10 @@ defmodule Ebae.Auctions do
 
   defp validate_datetimes(%{"start" => start, "finish" => finish}, datetime) do
     now = datetime.utc_now
-    datetime.compare(start, finish) == :lt && 
-    datetime.compare(now, start) == :lt && 
-    datetime.compare(now, finish) == :lt
+
+    datetime.compare(start, finish) == :lt &&
+      datetime.compare(now, start) == :lt &&
+      datetime.compare(now, finish) == :lt
   end
 
   def update_auction(%Auction{} = auction, attrs) do

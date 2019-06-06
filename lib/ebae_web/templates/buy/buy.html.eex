@@ -13,7 +13,7 @@
     <p>Current Bid</p>
   </article>
 </section>
-<%= for auction <- auctions(@conn) do %>
+<%= for auction <- auctions(@conn, @datetime) do %>
   <section class="row">
     <article class="column">
       <p><%= link(auction.name, to: Routes.buy_path(@conn, :new, auction.id), class: "nav-link") %></p>

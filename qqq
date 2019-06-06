@@ -3,29 +3,11 @@ defmodule EbaeWeb.BuyUITest do
 
   alias Ebae.{Accounts, Auctions}
 
-  defmodule MockDateTimePast do
+  defmodule MockDateTime do
     defdelegate compare(datetime1, datetime2), to: DateTime
 
     def utc_now do
       {:ok, now} = DateTime.from_naive(~N[2018-01-01 10:00:00], "Etc/UTC")
-      now
-    end
-  end
-
-  defmodule MockDateTimePresent do
-    defdelegate compare(datetime1, datetime2), to: DateTime
-
-    def utc_now do
-      {:ok, now} = DateTime.from_naive(~N[2019-01-01 11:00:00], "Etc/UTC")
-      now
-    end
-  end
-
-  defmodule MockDateTimeFuture do
-    defdelegate compare(datetime1, datetime2), to: DateTime
-
-    def utc_now do
-      {:ok, now} = DateTime.from_naive(~N[2020-01-01 10:00:00], "Etc/UTC")
       now
     end
   end
@@ -69,9 +51,9 @@ defmodule EbaeWeb.BuyUITest do
     end
 
     test "displays auctions for sale", %{conn: conn, user: user, other_user: other_user} do
-      Auctions.create_auction(Map.put(@auction_attrs, "user_id", other_user.id), MockDateTimePast)
+      Auctions.create_auction(Map.put(@auction_attrs, "user_id", other_user.id), MockDateTime)
       conn = Auth.sign_in(conn, user)
-      conn = get(conn, Routes.buy_path(conn, :buy), datetime: MockDateTimePresent)
+      conn = get(conn, Routes.buy_path(conn, :buy))
       assert html_response(conn, 200) =~ "some name"
       assert html_response(conn, 200) =~ "some description"
       assert html_response(conn, 200) =~ "120.5"
@@ -79,14 +61,14 @@ defmodule EbaeWeb.BuyUITest do
 
     test "displays auctions with current bid", %{conn: conn, user: user, other_user: other_user} do
       {:ok, auction} =
-        Auctions.create_auction(Map.put(@auction_attrs, "user_id", other_user.id), MockDateTimePast)
+        Auctions.create_auction(Map.put(@auction_attrs, "user_id", other_user.id), MockDateTime)
 
       Auctions.create_bid(
         Map.merge(@bid_attrs, %{"user_id" => user.id, "auction_id" => auction.id})
       )
 
       conn = Auth.sign_in(conn, user)
-      conn = get(conn, Routes.buy_path(conn, :buy), datetime: MockDateTimePresent)
+      conn = get(conn, Routes.buy_path(conn, :buy))
       assert html_response(conn, 200) =~ "some name"
       assert html_response(conn, 200) =~ "some description"
       assert html_response(conn, 200) =~ "205.0"
@@ -94,10 +76,10 @@ defmodule EbaeWeb.BuyUITest do
 
     test "displays link to item bid creation", %{conn: conn, user: user, other_user: other_user} do
       {:ok, auction} =
-        Auctions.create_auction(Map.put(@auction_attrs, "user_id", other_user.id), MockDateTimePast)
+        Auctions.create_auction(Map.put(@auction_attrs, "user_id", other_user.id), MockDateTime)
 
       conn = Auth.sign_in(conn, user)
-      conn = get(conn, Routes.buy_path(conn, :buy), datetime: MockDateTimePresent)
+      conn = get(conn, Routes.buy_path(conn, :buy))
       assert html_response(conn, 200) =~ "href=\"/buy/#{auction.id}/new\""
     end
 
@@ -109,7 +91,7 @@ defmodule EbaeWeb.BuyUITest do
 
     test "displays buyers bids", %{conn: conn, user: user, other_user: other_user} do
       {:ok, auction} =
-        Auctions.create_auction(Map.put(@auction_attrs, "user_id", other_user.id), MockDateTimePast)
+        Auctions.create_auction(Map.put(@auction_attrs, "user_id", other_user.id), MockDateTime)
 
       {:ok, bid} =
         Auctions.create_bid(
@@ -122,18 +104,6 @@ defmodule EbaeWeb.BuyUITest do
       assert html_response(conn, 200) =~ "some description"
       assert html_response(conn, 200) =~ "205.0"
       assert html_response(conn, 200) =~ to_string(bid.inserted_at)
-    end
-
-    test "displays won auctions", %{conn: conn, user: user, other_user: other_user} do
-      {:ok, auction} =
-        Auctions.create_auction(Map.put(@auction_attrs, "user_id", other_user.id), MockDateTimePast)
-
-      Auctions.create_bid(Map.merge(@bid_attrs, %{"user_id" => user.id, "auction_id" => auction.id}))
-      conn = Auth.sign_in(conn, user)
-      conn = get(conn, Routes.buy_path(conn, :won), datetime: MockDateTimeFuture)
-      assert html_response(conn, 200) =~ "some name"
-      assert html_response(conn, 200) =~ "some description"
-      assert html_response(conn, 200) =~ "205.0"
     end
   end
 

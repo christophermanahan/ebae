@@ -15,6 +15,7 @@ defmodule EbaeWeb.SellControllerTest do
 
   {:ok, start} = DateTime.from_naive(~N[2019-01-01 10:00:00], "Etc/UTC")
   {:ok, finish} = DateTime.from_naive(~N[2019-02-01 10:00:00], "Etc/UTC")
+
   @create_attrs %{
     "start" => start,
     "finish" => finish,
@@ -151,13 +152,6 @@ defmodule EbaeWeb.SellControllerTest do
         )
 
       assert get_flash(conn, :error) == "Form submission invalid"
-      assert redirected_to(conn) == Routes.sell_path(conn, :new)
-    end
-
-    test "renders error when start date is invalid", %{conn: conn, user: user} do
-      conn = Auth.sign_in(conn, user)
-      conn = post(conn, Routes.sell_path(conn, :create), auction: @nil_auction_attrs)
-      assert get_flash(conn, :error) == "All fields required"
       assert redirected_to(conn) == Routes.sell_path(conn, :new)
     end
 

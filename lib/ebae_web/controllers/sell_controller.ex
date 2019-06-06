@@ -80,11 +80,17 @@ defmodule EbaeWeb.SellController do
 
   defp convert_datetimes(auction) do
     auction
-    |> Map.update("start", DateTime.utc_now, fn x -> to_datetime(x) end) 
-    |> Map.update("finish", DateTime.utc_now, fn x -> to_datetime(x) end) 
+    |> Map.update("start", DateTime.utc_now(), fn x -> to_datetime(x) end)
+    |> Map.update("finish", DateTime.utc_now(), fn x -> to_datetime(x) end)
   end
 
-  defp to_datetime(%{"day" => day, "hour" => hour, "minute" => minute, "month" => month, "year" => year}) do
+  defp to_datetime(%{
+         "day" => day,
+         "hour" => hour,
+         "minute" => minute,
+         "month" => month,
+         "year" => year
+       }) do
     [day, month, hour, minute] = leading_zero_padding([day, month, hour, minute])
     {:ok, datetime, _} = DateTime.from_iso8601("#{year}-#{month}-#{day}T#{hour}:#{minute}:00Z")
 

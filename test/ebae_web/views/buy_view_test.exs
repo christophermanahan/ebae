@@ -4,7 +4,7 @@ defmodule EbaeWeb.BuyViewTest do
   alias Ebae.{Accounts, Auctions}
   alias EbaeWeb.BuyView
 
-  defmodule MockDateTime do
+  defmodule MockDateTimePast do
     defdelegate compare(datetime1, datetime2), to: DateTime
 
     def utc_now do
@@ -13,21 +13,21 @@ defmodule EbaeWeb.BuyViewTest do
     end
   end
 
+  defmodule MockDateTimeFuture do
+    defdelegate compare(datetime1, datetime2), to: DateTime
+
+    def utc_now do
+      {:ok, now} = DateTime.from_naive(~N[2020-01-01 10:00:00], "Etc/UTC")
+      now
+    end
+  end
+
   {:ok, start} = DateTime.from_naive(~N[2019-01-01 10:00:00], "Etc/UTC")
   {:ok, finish} = DateTime.from_naive(~N[2019-02-01 10:00:00], "Etc/UTC")
-  {:ok, started} = DateTime.from_naive(~N[2018-01-01 08:00:00], "Etc/UTC")
-  {:ok, finished} = DateTime.from_naive(~N[2019-01-01 09:00:00], "Etc/UTC")
 
   @auction_attrs %{
     "start" => start,
     "finish" => finish,
-    "description" => "some description",
-    "initial_price" => "120.5",
-    "name" => "some name"
-  }
-  @won_auction_attrs %{
-    "start" => started,
-    "finish" => finished,
     "description" => "some description",
     "initial_price" => "120.5",
     "name" => "some name"
@@ -68,23 +68,43 @@ defmodule EbaeWeb.BuyViewTest do
       user: user,
       other_user: other_user
     } do
-      Auctions.create_auction(Map.put(@auction_attrs, "user_id", other_user.id), MockDateTime)
+      Auctions.create_auction(Map.put(@auction_attrs, "user_id", other_user.id), MockDateTimePast)
       conn = Auth.sign_in(conn, user)
       auctions = Auctions.get_buyers_auctions!(user)
       assert BuyView.auctions(conn) == auctions
     end
   end
 
+  describe "won" do
+    setup [:create_users]
+
+    test "returns the users won auctions", %{
+      conn: conn,
+      user: user,
+      other_user: other_user
+    } do
+      {:ok, auction} = Auctions.create_auction(Map.put(@auction_attrs, "user_id", other_user.id), MockDateTimePast)
+
+      Auctions.create_bid(
+        Map.merge(@bid_attrs, %{"user_id" => user.id, "auction_id" => auction.id})
+      )
+
+      conn = Auth.sign_in(conn, user)
+      auctions = Auctions.won!(user, MockDateTimeFuture)
+      assert BuyView.won(conn, MockDateTimeFuture) == auctions
+    end
+  end
+
   describe "bids" do
     setup [:create_users]
 
-    test "returns the current auctions for sale", %{
+    test "returns the users bids", %{
       conn: conn,
       user: user,
       other_user: other_user
     } do
       {:ok, auction} =
-        Auctions.create_auction(Map.put(@auction_attrs, "user_id", other_user.id), MockDateTime)
+        Auctions.create_auction(Map.put(@auction_attrs, "user_id", other_user.id), MockDateTimePast)
 
       Auctions.create_bid(
         Map.merge(@bid_attrs, %{"user_id" => user.id, "auction_id" => auction.id})
@@ -102,7 +122,7 @@ defmodule EbaeWeb.BuyViewTest do
 
     test "returns the highest bid", %{user: user, other_user: other_user} do
       {:ok, auction} =
-        Auctions.create_auction(Map.put(@auction_attrs, "user_id", other_user.id), MockDateTime)
+        Auctions.create_auction(Map.put(@auction_attrs, "user_id", other_user.id), MockDateTimePast)
 
       Auctions.create_bid(
         Map.merge(@bid_attrs, %{"user_id" => user.id, "auction_id" => auction.id})
@@ -113,7 +133,7 @@ defmodule EbaeWeb.BuyViewTest do
 
     test "returns the initial price if there are no bids", %{user: user} do
       {:ok, auction} =
-        Auctions.create_auction(Map.put(@auction_attrs, "user_id", user.id), MockDateTime)
+        Auctions.create_auction(Map.put(@auction_attrs, "user_id", user.id), MockDateTimePast)
 
       assert BuyView.current_price(Auctions.get_auction!(auction.id)) == Decimal.from_float(120.5)
     end

@@ -12,6 +12,15 @@ defmodule Ebae.AuctionsTest do
     end
   end
 
+  defmodule MockDateTimePresent do
+    defdelegate compare(datetime1, datetime2), to: DateTime
+
+    def utc_now do
+      {:ok, now} = DateTime.from_naive(~N[2019-01-01 11:00:00], "Etc/UTC")
+      now
+    end
+  end
+
   defmodule MockDateTimeFuture do
     defdelegate compare(datetime1, datetime2), to: DateTime
 
@@ -23,6 +32,8 @@ defmodule Ebae.AuctionsTest do
 
   {:ok, start} = DateTime.from_naive(~N[2019-01-01 10:00:00], "Etc/UTC")
   {:ok, finish} = DateTime.from_naive(~N[2019-02-01 10:00:00], "Etc/UTC")
+  {:ok, started} = DateTime.from_naive(~N[2017-01-01 10:00:00], "Etc/UTC")
+  {:ok, finished} = DateTime.from_naive(~N[2017-02-01 10:00:00], "Etc/UTC")
   {:ok, past_date} = DateTime.from_naive(~N[2017-01-01 10:00:00], "Etc/UTC")
 
   @auction_attrs %{
@@ -49,6 +60,13 @@ defmodule Ebae.AuctionsTest do
   @other_auction_attrs %{
     "start" => start,
     "finish" => finish,
+    "description" => "some other description",
+    "initial_price" => "1.00",
+    "name" => "some other name"
+  }
+  @past_auction_attrs %{
+    "start" => started,
+    "finish" => finished,
     "description" => "some other description",
     "initial_price" => "1.00",
     "name" => "some other name"
@@ -131,7 +149,7 @@ defmodule Ebae.AuctionsTest do
       assert auction.user_id == user.id
     end
 
-    test "get_buyers_auctions!/1 returns the auctions that are for sale", %{
+    test "get_buyers_auctions!/1 returns the auctions that are currently for sale", %{
       user: user,
       other_user: other_user
     } do
@@ -141,8 +159,12 @@ defmodule Ebae.AuctionsTest do
         Map.put(@other_auction_attrs, "user_id", other_user.id),
         MockDateTimePast
       )
+      Auctions.create_auction(
+        Map.put(@past_auction_attrs, "user_id", other_user.id),
+        MockDateTimePast
+      )
 
-      [auction] = Auctions.get_buyers_auctions!(user)
+      [auction] = Auctions.get_buyers_auctions!(user, MockDateTimePresent)
       {:ok, start} = DateTime.from_naive(~N[2019-01-01 10:00:00], "Etc/UTC")
       {:ok, finish} = DateTime.from_naive(~N[2019-02-01 10:00:00], "Etc/UTC")
       assert auction.start == start
@@ -161,7 +183,7 @@ defmodule Ebae.AuctionsTest do
       auction = fixture(:auction, other_user.id)
       lower_bid = fixture(:bid, @bid_attrs, user.id, auction.id)
       higher_bid = fixture(:bid, @higher_bid_attrs, user.id, auction.id)
-      [auction] = Auctions.get_buyers_auctions!(user)
+      [auction] = Auctions.get_buyers_auctions!(user, MockDateTimePresent)
       assert auction.bids == [higher_bid, lower_bid]
     end
 
