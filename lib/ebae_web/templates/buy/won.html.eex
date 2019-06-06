@@ -1,0 +1,15 @@
+<h2>Your won auctions</h2>
+
+<%= for auction <- won(@conn, @datetime) do %>
+  <section class="row">
+    <article class="column">
+      <p><%= auction.name %></p>
+    </article>
+    <article class="column">
+      <p><%= auction.description %></p>
+    </article>
+    <article class="column">
+      <p><%= current_price(auction) %></p>
+    </article>
+  </section>
+<% end %>

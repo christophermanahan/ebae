@@ -8,16 +8,22 @@ defmodule EbaeWeb.BuyView do
     Auth.current_user(conn).username
   end
 
-  def auctions(conn) do
+  def auctions(conn, datetime \\ DateTime) do
     conn
-    |> Auth.current_user
-    |> Auctions.get_buyers_auctions!
+    |> Auth.current_user()
+    |> Auctions.get_buyers_auctions!(datetime)
+  end
+
+  def won(conn, datetime \\ DateTime) do
+    conn
+    |> Auth.current_user()
+    |> Auctions.won!(datetime)
   end
 
   def bids(conn) do
     conn
-    |> Auth.current_user
-    |> Auctions.get_bids!
+    |> Auth.current_user()
+    |> Auctions.get_bids!()
   end
 
   def current_price(%{:bids => []} = auction) do

@@ -3,17 +3,17 @@ defmodule EbaeWeb.SessionControllerTest do
 
   alias Ebae.Accounts
 
-  @create_attrs %{
-    username: "username",
-    credential: %{email: "email", password: "password"}
+  @user_attrs %{
+    "username" => "username",
+    "credential" => %{email: "email", password: "password"}
   }
   @invalid_attrs %{
-    username: "username",
-    credential: %{email: "email", password: "incorrect password"}
+    "username" => "username",
+    "credential" => %{email: "email", password: "incorrect password"}
   }
 
   def fixture(:user) do
-    {:ok, user} = Accounts.create_user(@create_attrs)
+    {:ok, user} = Accounts.create_user(@user_attrs)
     user
   end
 
@@ -37,12 +37,12 @@ defmodule EbaeWeb.SessionControllerTest do
     setup [:create_user]
 
     test "signs user in if data is valid", %{conn: conn} do
-      conn = post(conn, Routes.session_path(conn, :create), user: @create_attrs)
+      conn = post(conn, Routes.session_path(conn, :create), user: @user_attrs)
       assert Auth.authenticated?(conn)
     end
 
     test "renders index when data is valid", %{conn: conn} do
-      conn = post(conn, Routes.session_path(conn, :create), user: @create_attrs)
+      conn = post(conn, Routes.session_path(conn, :create), user: @user_attrs)
       assert get_flash(conn, :info) == "Welcome back"
       assert redirected_to(conn) == Routes.page_path(conn, :index)
     end
@@ -58,14 +58,14 @@ defmodule EbaeWeb.SessionControllerTest do
     setup [:create_user]
 
     test "signs user out", %{conn: conn} do
-      conn = post(conn, Routes.session_path(conn, :create), user: @create_attrs)
+      conn = post(conn, Routes.session_path(conn, :create), user: @user_attrs)
       assert Auth.authenticated?(conn)
       conn = delete(conn, Routes.session_path(conn, :delete))
       refute Auth.authenticated?(conn)
     end
 
     test "renders signin form after signing out", %{conn: conn} do
-      conn = post(conn, Routes.session_path(conn, :create), user: @create_attrs)
+      conn = post(conn, Routes.session_path(conn, :create), user: @user_attrs)
       conn = delete(conn, Routes.session_path(conn, :delete))
       assert get_flash(conn, :info) == "Farewell"
       assert redirected_to(conn) == Routes.session_path(conn, :new)

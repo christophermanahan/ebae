@@ -3,41 +3,94 @@ defmodule Ebae.AuctionsTest do
 
   alias Ebae.{Auctions, Accounts, Auctions.Auction, Auctions.Bid}
 
+  defmodule MockDateTimePast do
+    defdelegate compare(datetime1, datetime2), to: DateTime
+
+    def utc_now do
+      {:ok, now} = DateTime.from_naive(~N[2018-01-01 10:00:00], "Etc/UTC")
+      now
+    end
+  end
+
+  defmodule MockDateTimePresent do
+    defdelegate compare(datetime1, datetime2), to: DateTime
+
+    def utc_now do
+      {:ok, now} = DateTime.from_naive(~N[2019-01-01 11:00:00], "Etc/UTC")
+      now
+    end
+  end
+
+  defmodule MockDateTimeFuture do
+    defdelegate compare(datetime1, datetime2), to: DateTime
+
+    def utc_now do
+      {:ok, now} = DateTime.from_naive(~N[2020-01-01 10:00:00], "Etc/UTC")
+      now
+    end
+  end
+
+  {:ok, start} = DateTime.from_naive(~N[2019-01-01 10:00:00], "Etc/UTC")
+  {:ok, finish} = DateTime.from_naive(~N[2019-02-01 10:00:00], "Etc/UTC")
+  {:ok, not_finished} = DateTime.from_naive(~N[2021-01-01 10:00:00], "Etc/UTC")
+  {:ok, started} = DateTime.from_naive(~N[2017-01-01 10:00:00], "Etc/UTC")
+  {:ok, finished} = DateTime.from_naive(~N[2017-02-01 10:00:00], "Etc/UTC")
+  {:ok, past_date} = DateTime.from_naive(~N[2017-01-01 10:00:00], "Etc/UTC")
+
   @auction_attrs %{
-    available: true,
-    description: "some description",
-    initial_price: "120.5",
-    name: "some name"
+    "start" => start,
+    "finish" => finish,
+    "description" => "some description",
+    "initial_price" => "120.5",
+    "name" => "some name"
   }
   @update_attrs %{
-    available: false,
-    description: "some updated description",
-    initial_price: "456.7",
-    name: "some updated name"
+    "start" => start,
+    "finish" => finish,
+    "description" => "some updated description",
+    "initial_price" => "456.7",
+    "name" => "some updated name"
   }
-  @invalid_auction_attrs %{
-    available: nil,
-    description: nil,
-    initial_price: nil,
-    name: nil,
-    user_id: nil
+  @invalid_auction_start %{
+    "start" => past_date,
+    "finish" => finish,
+    "description" => "some description",
+    "initial_price" => "120.5",
+    "name" => "some name"
+  }
+  @other_auction_attrs %{
+    "start" => start,
+    "finish" => finish,
+    "description" => "some other description",
+    "initial_price" => "1.00",
+    "name" => "some other name"
+  }
+  @past_auction_attrs %{
+    "start" => started,
+    "finish" => finished,
+    "description" => "some other description",
+    "initial_price" => "1.00",
+    "name" => "some other name"
+  }
+  @not_finished_auction_attrs %{
+    "start" => start,
+    "finish" => not_finished,
+    "description" => "some other description",
+    "initial_price" => "1.00",
+    "name" => "some other name"
   }
 
   @user_attrs %{
-    username: "username",
-    credential: %{email: "email", password: "password"}
+    "username" => "username",
+    "credential" => %{email: "email", password: "password"}
   }
-
-  @other_user_auction_attrs %{
-    available: true,
-    description: "some other description",
-    initial_price: "1.00",
-    name: "some other name"
-  }
-
   @other_user_attrs %{
-    username: "other username",
-    credential: %{email: "other email", password: "password"}
+    "username" => "other username",
+    "credential" => %{email: "other email", password: "password"}
+  }
+  @another_user_attrs %{
+    "username" => "another username",
+    "credential" => %{email: "another email", password: "password"}
   }
 
   @bid_attrs %{offer: "120.5"}
@@ -45,7 +98,9 @@ defmodule Ebae.AuctionsTest do
   @invalid_bid_attrs %{offer: nil, user_id: nil, auction_id: nil}
 
   def fixture(:auction, user_id) do
-    {:ok, auction} = Auctions.create_auction(Map.put(@auction_attrs, :user_id, user_id))
+    {:ok, auction} =
+      Auctions.create_auction(Map.put(@auction_attrs, "user_id", user_id), MockDateTimePast)
+
     auction
   end
 
@@ -67,7 +122,10 @@ defmodule Ebae.AuctionsTest do
     test "get_auction!/1 returns the auction with given id", %{user: user} do
       auction = fixture(:auction, user.id)
       auction = Auctions.get_auction!(auction.id)
-      assert auction.available == true
+      {:ok, start} = DateTime.from_naive(~N[2019-01-01 10:00:00], "Etc/UTC")
+      {:ok, finish} = DateTime.from_naive(~N[2019-02-01 10:00:00], "Etc/UTC")
+      assert auction.start == start
+      assert auction.finish == finish
       assert auction.description == "some description"
       assert auction.initial_price == Decimal.new("120.5")
       assert auction.name == "some name"
@@ -75,7 +133,10 @@ defmodule Ebae.AuctionsTest do
       assert auction.bids == []
     end
 
-    test "get_auction!/1 returns the auction with sorted bids", %{user: user, other_user: other_user} do
+    test "get_auction!/1 returns the auction with sorted bids", %{
+      user: user,
+      other_user: other_user
+    } do
       auction = fixture(:auction, other_user.id)
       lower_bid = fixture(:bid, @bid_attrs, user.id, auction.id)
       higher_bid = fixture(:bid, @higher_bid_attrs, user.id, auction.id)
@@ -83,21 +144,53 @@ defmodule Ebae.AuctionsTest do
       assert auction.bids == [higher_bid, lower_bid]
     end
 
-    test "get_sellers_auctions!/1 returns the auctions belonging to a given seller", %{user: user} do
-      fixture(:auction, user.id)
-      [auction] = Auctions.get_sellers_auctions!(user)
-      assert auction.available == true
+    test "get_sellers_auctions!/1 returns the sellers auctions that are currently for sale", %{
+      user: user,
+      other_user: other_user
+    } do
+      Auctions.create_auction(Map.put(@auction_attrs, "user_id", user.id), MockDateTimePast)
+
+      Auctions.create_auction(
+        Map.put(@past_auction_attrs, "user_id", user.id),
+        MockDateTimePast
+      )
+
+      Auctions.create_auction(
+        Map.put(@other_auction_attrs, "user_id", other_user.id),
+        MockDateTimePast
+      )
+
+      [auction] = Auctions.get_sellers_auctions!(user, MockDateTimePresent)
+      {:ok, start} = DateTime.from_naive(~N[2019-01-01 10:00:00], "Etc/UTC")
+      {:ok, finish} = DateTime.from_naive(~N[2019-02-01 10:00:00], "Etc/UTC")
+      assert auction.start == start
+      assert auction.finish == finish
       assert auction.description == "some description"
       assert auction.initial_price == Decimal.new("120.5")
       assert auction.name == "some name"
-      assert auction.user_id == user.id
     end
 
-    test "get_buyers_auctions!/1 returns the auctions that are for sale", %{user: user, other_user: other_user} do
-      Auctions.create_auction(Map.put(@auction_attrs, :user_id, user.id))
-      Auctions.create_auction(Map.put(@other_user_auction_attrs, :user_id, other_user.id))
-      [auction] = Auctions.get_buyers_auctions!(user)
-      assert auction.available == true
+    test "get_buyers_auctions!/1 returns the buyers auctions that are currently for sale", %{
+      user: user,
+      other_user: other_user
+    } do
+      Auctions.create_auction(Map.put(@auction_attrs, "user_id", user.id), MockDateTimePast)
+
+      Auctions.create_auction(
+        Map.put(@other_auction_attrs, "user_id", other_user.id),
+        MockDateTimePast
+      )
+
+      Auctions.create_auction(
+        Map.put(@past_auction_attrs, "user_id", other_user.id),
+        MockDateTimePast
+      )
+
+      [auction] = Auctions.get_buyers_auctions!(user, MockDateTimePresent)
+      {:ok, start} = DateTime.from_naive(~N[2019-01-01 10:00:00], "Etc/UTC")
+      {:ok, finish} = DateTime.from_naive(~N[2019-02-01 10:00:00], "Etc/UTC")
+      assert auction.start == start
+      assert auction.finish == finish
       assert auction.description == "some other description"
       assert auction.initial_price == Decimal.new("1.00")
       assert auction.name == "some other name"
@@ -105,43 +198,98 @@ defmodule Ebae.AuctionsTest do
       assert auction.bids == []
     end
 
-    test "get_buyers_auctions!/1 returns the auctions with sorted bids", %{user: user, other_user: other_user} do
+    test "get_buyers_auctions!/1 returns the auctions with sorted bids", %{
+      user: user,
+      other_user: other_user
+    } do
       auction = fixture(:auction, other_user.id)
       lower_bid = fixture(:bid, @bid_attrs, user.id, auction.id)
       higher_bid = fixture(:bid, @higher_bid_attrs, user.id, auction.id)
-      [auction] = Auctions.get_buyers_auctions!(user)
+      [auction] = Auctions.get_buyers_auctions!(user, MockDateTimePresent)
       assert auction.bids == [higher_bid, lower_bid]
+    end
+
+    test "won!/1 returns the auctions that have been won", %{
+      user: user,
+      other_user: other_user
+    } do
+      another_user = fixture(:user, @another_user_attrs)
+
+      {:ok, auction_one} =
+        Auctions.create_auction(
+          Map.put(@auction_attrs, "user_id", other_user.id),
+          MockDateTimePast
+        )
+
+      {:ok, auction_two} =
+        Auctions.create_auction(
+          Map.put(@other_auction_attrs, "user_id", other_user.id),
+          MockDateTimePast
+        )
+
+      fixture(:bid, @bid_attrs, user.id, auction_one.id)
+      fixture(:bid, @bid_attrs, user.id, auction_two.id)
+      fixture(:bid, @higher_bid_attrs, another_user.id, auction_two.id)
+      [auction] = Auctions.won!(user, MockDateTimeFuture)
+      assert auction.name == auction_one.name
+    end
+
+    test "sold!/1 returns the auctions that have been bid on and sold", %{
+      user: user,
+      other_user: other_user
+    } do
+      fixture(:user, @another_user_attrs)
+
+      {:ok, auction_one} =
+        Auctions.create_auction(Map.put(@auction_attrs, "user_id", user.id), MockDateTimePast)
+
+      Auctions.create_auction(Map.put(@auction_attrs, "user_id", user.id), MockDateTimePast)
+
+      Auctions.create_auction(
+        Map.put(@not_finished_auction_attrs, "user_id", user.id),
+        MockDateTimePast
+      )
+
+      fixture(:bid, @bid_attrs, other_user.id, auction_one.id)
+      [auction] = Auctions.sold!(user, MockDateTimeFuture)
+      assert auction.name == auction_one.name
     end
 
     test "create_auction/1 with valid data creates an auction", %{user: user} do
       assert {:ok, %Auction{} = auction} =
-               Auctions.create_auction(Map.put(@auction_attrs, :user_id, user.id))
+               Auctions.create_auction(
+                 Map.put(@auction_attrs, "user_id", user.id),
+                 MockDateTimePast
+               )
 
-      assert auction.available == true
+      {:ok, start} = DateTime.from_naive(~N[2019-01-01 10:00:00], "Etc/UTC")
+      {:ok, finish} = DateTime.from_naive(~N[2019-02-01 10:00:00], "Etc/UTC")
+      assert auction.start == start
+      assert auction.finish == finish
       assert auction.description == "some description"
       assert auction.initial_price == Decimal.new("120.5")
       assert auction.name == "some name"
       assert auction.user_id == user.id
     end
 
-    test "create_auction/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} = Auctions.create_auction(@invalid_auction_attrs)
+    test "create_auction/1 with invalid start date returns error changeset", %{user: user} do
+      assert {:error, changeset} =
+               Auctions.create_auction(
+                 Map.put(@invalid_auction_start, "user_id", user.id),
+                 MockDateTimePast
+               )
     end
 
     test "update_auction/2 with valid data updates the auction", %{user: user} do
       auction = fixture(:auction, user.id)
       assert {:ok, %Auction{} = auction} = Auctions.update_auction(auction, @update_attrs)
-      assert auction.available == false
+      {:ok, start} = DateTime.from_naive(~N[2019-01-01 10:00:00], "Etc/UTC")
+      {:ok, finish} = DateTime.from_naive(~N[2019-02-01 10:00:00], "Etc/UTC")
+      assert auction.start == start
+      assert auction.finish == finish
       assert auction.description == "some updated description"
       assert auction.initial_price == Decimal.new("456.7")
       assert auction.name == "some updated name"
-    end
-
-    test "update_auction/2 with invalid data returns error changeset", %{user: user} do
-      auction = fixture(:auction, user.id)
-
-      assert {:error, %Ecto.Changeset{}} =
-               Auctions.update_auction(auction, @invalid_auction_attrs)
     end
 
     test "delete_auction/1 deletes the auction", %{user: user} do

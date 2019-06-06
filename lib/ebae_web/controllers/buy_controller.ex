@@ -4,12 +4,16 @@ defmodule EbaeWeb.BuyController do
   alias Ebae.{Auctions, Auctions.Bid}
   alias EbaeWeb.Auth
 
-  def index(conn, _) do
-    render(conn, "index.html")
+  def buy(conn, params) do
+    render(conn, "buy.html", datetime: Map.get(params, "datetime", DateTime))
   end
 
   def bids(conn, _) do
     render(conn, "bids.html")
+  end
+
+  def won(conn, params) do
+    render(conn, "won.html", datetime: Map.get(params, "datetime", DateTime))
   end
 
   def new(conn, %{"id" => auction_id}) do
@@ -26,7 +30,7 @@ defmodule EbaeWeb.BuyController do
   end
 
   defp validate_and_create(conn, bid, auction_id) do
-    if (validate(bid)) do
+    if validate(bid) do
       user_id = Map.get(Auth.current_user(conn), :id)
       with_associations = Map.merge(bid, %{"user_id" => user_id, "auction_id" => auction_id})
       Auctions.create_bid(with_associations)
@@ -42,7 +46,7 @@ defmodule EbaeWeb.BuyController do
   defp create_reply({:ok, _}, conn, _) do
     conn
     |> put_flash(:info, "Bid successfully offered")
-    |> redirect(to: Routes.buy_path(conn, :index))
+    |> redirect(to: Routes.buy_path(conn, :buy))
   end
 
   defp create_reply({:error, _}, conn, auction_id) do

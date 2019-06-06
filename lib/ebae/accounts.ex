@@ -17,13 +17,6 @@ defmodule Ebae.Accounts do
     |> Repo.insert()
   end
 
-  def update_user(%User{} = user, attrs) do
-    user
-    |> User.changeset(attrs)
-    |> Ecto.Changeset.cast_assoc(:credential, with: &Credential.changeset/2)
-    |> Repo.update()
-  end
-
   def delete_user(%User{} = user) do
     Repo.delete(user)
   end

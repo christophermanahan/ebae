@@ -6,7 +6,8 @@ defmodule Ebae.Auctions.Auction do
   alias Ebae.{Accounts.User, Auctions.Bid}
 
   schema "auctions" do
-    field :available, :boolean, default: true
+    field :start, :utc_datetime
+    field :finish, :utc_datetime
     field :description, :string
     field :initial_price, :decimal
     field :name, :string
@@ -16,9 +17,9 @@ defmodule Ebae.Auctions.Auction do
     timestamps()
   end
 
-  def changeset(auction, attrs) do
-    auction
-    |> cast(attrs, [:name, :description, :available, :initial_price, :user_id])
-    |> validate_required([:name, :description, :available, :initial_price, :user_id])
+  def changeset(changeset, attrs) do
+    changeset
+    |> cast(attrs, [:name, :description, :start, :finish, :initial_price, :user_id])
+    |> validate_required([:name, :description, :start, :finish, :initial_price, :user_id])
   end
 end

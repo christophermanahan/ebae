@@ -1,0 +1,3 @@
+<%= label @f, @key %>
+<%= datetime_select @f, @key %>
+<%= error_tag @f, @key %>

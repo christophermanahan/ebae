@@ -4,8 +4,8 @@ defmodule EbaeWeb.LayoutUI do
   alias Ebae.Accounts
 
   @user_attrs %{
-    username: "username",
-    credential: %{email: "email", password: "password"}
+    "username" => "username",
+    "credential" => %{email: "email", password: "password"}
   }
 
   def fixture(:user) do
