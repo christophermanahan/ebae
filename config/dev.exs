@@ -37,6 +37,13 @@ config :ebae, Ebae.Accounts.Guardian,
     System.get_env("GUARDIAN_SECRET_KEY") ||
       "I4PKIf4IOkA2So5ysGWxnLrN+nU1Na7KSXAYi8R6bGOb1LNnIRxaoKAwNV1ATlAd"
 
+config :exq,
+  host: System.get_env("REDIS_HOST") || "localhost",
+  port: System.get_env("REDIS_PORT") || 6379
+
+config :ebae, Ebae.Mailer,
+  adapter: Bamboo.LocalAdapter
+
 # ## SSL Support
 #
 # In order to use HTTPS in development, a self-signed

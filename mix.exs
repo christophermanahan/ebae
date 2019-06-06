@@ -45,6 +45,8 @@ defmodule Ebae.MixProject do
       {:plug_cowboy, "~> 2.0"},
       {:guardian, "~> 1.2.1"},
       {:argon2_elixir, "~> 2.0"},
+      {:exq, "~> 0.13.2"},
+      {:bamboo, "~> 1.2"},
       {:mix_test_watch, "~> 0.8", only: :dev, runtime: false}
     ]
   end

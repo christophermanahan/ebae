@@ -7,6 +7,7 @@ RUN apt-get update && \
   curl -sL https://deb.nodesource.com/setup_12.x | bash &&\
   apt-get install -y nodejs && \
   apt-get install -y inotify-tools && \
+  apt-get install -y redis-server && \
   npm install -g webpack-cli webpack
 
 WORKDIR /app

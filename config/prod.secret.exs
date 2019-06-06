@@ -17,6 +17,9 @@ config :ebae, Ebae.Repo,
   url: database_url,
   pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10")
 
+config :ebae, Ebae.Mailer,
+  adapter: Bamboo.MandrillAdapter
+
 secret_key_base =
   System.get_env("SECRET_KEY_BASE") ||
     IO.puts("""
@@ -38,3 +41,27 @@ guardian_secret_key =
 config :ebae, Ebae.Accounts.Guardian,
   issuer: "ebae",
   secret_key: guardian_secret_key
+
+redis_password =
+  System.get_env("REDIS_PASSWORD") ||
+    IO.puts("""
+    environment variable REDIS_PASSWORD is missing.
+    """)
+
+redis_hostname =
+  System.get_env("REDIS_HOSTNAME") ||
+    IO.puts("""
+    environment variable REDIS_HOSTNAME is missing.
+    """)
+    
+redis_port =
+  System.get_env("REDIS_PORT") ||
+    IO.puts("""
+    environment variable REDIS_PORT is missing.
+    """)
+
+# Configures Exq
+config :exq,
+  host: redis_hostname,
+  port: redis_port,
+  password: redis_password,

@@ -19,8 +19,11 @@ config :ebae, EbaeWeb.Endpoint,
 
 # Configures Elixir's Logger
 config :logger, :console,
-  format: "$time $metadata[$level] $message\n",
-  metadata: [:request_id]
+  format: "$time $metadata[$level] $message\n"
+
+# Configures Exq
+config :exq,
+  start_on_application: false
 
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason

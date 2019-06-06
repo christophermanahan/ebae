@@ -1,7 +1,5 @@
 defmodule Ebae.Application do
-  # See https://hexdocs.pm/elixir/Application.html
-  # for more information on OTP Applications
-  @moduledoc false
+  import Supervisor.Spec
 
   use Application
 
@@ -11,9 +9,9 @@ defmodule Ebae.Application do
       # Start the Ecto repository
       Ebae.Repo,
       # Start the endpoint when the application starts
-      EbaeWeb.Endpoint
+      EbaeWeb.Endpoint,
       # Starts a worker by calling: Ebae.Worker.start_link(arg)
-      # {Ebae.Worker, arg},
+      supervisor(Exq, [])
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
