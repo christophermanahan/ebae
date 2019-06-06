@@ -10,21 +10,42 @@ defmodule Ebae.Auctions do
     |> Repo.preload(bids: from(b in Bid, order_by: [desc: b.offer]))
   end
 
-  def get_sellers_auctions!(%User{} = user) do
-    Repo.all(from a in Auction, where: a.user_id == ^user.id)
+  def get_sellers_auctions!(%User{} = user, datetime \\ DateTime) do
+    now = datetime.utc_now
+
+    Repo.all(
+      from a in Auction, where: a.user_id == ^user.id and a.start < ^now and a.finish > ^now
+    )
+    |> Repo.preload(bids: from(b in Bid, order_by: [desc: b.offer]))
   end
 
   def get_buyers_auctions!(%User{} = user, datetime \\ DateTime) do
     now = datetime.utc_now
-    Repo.all(from a in Auction, where: a.user_id != ^user.id and a.start < ^now and a.finish > ^now)
+
+    Repo.all(
+      from a in Auction, where: a.user_id != ^user.id and a.start < ^now and a.finish > ^now
+    )
     |> Repo.preload(bids: from(b in Bid, order_by: [desc: b.offer]))
   end
 
   def won!(%User{} = user, datetime \\ DateTime) do
     now = datetime.utc_now
-    Repo.all(from a in Auction, where: a.user_id != ^user.id and a.start < ^now and a.finish < ^now)
+
+    Repo.all(
+      from a in Auction, where: a.user_id != ^user.id and a.start < ^now and a.finish < ^now
+    )
     |> Repo.preload(bids: from(b in Bid, order_by: [desc: b.offer]))
     |> Enum.filter(fn auction -> Enum.at(auction.bids, 0).user_id == user.id end)
+  end
+
+  def sold!(%User{} = user, datetime \\ DateTime) do
+    now = datetime.utc_now
+
+    Repo.all(
+      from a in Auction, where: a.user_id == ^user.id and a.start < ^now and a.finish < ^now
+    )
+    |> Repo.preload(bids: from(b in Bid, order_by: [desc: b.offer]))
+    |> Enum.filter(fn auction -> Enum.count(auction.bids) > 0 end)
   end
 
   def create_auction(attrs, datetime \\ DateTime) do

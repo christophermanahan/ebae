@@ -4,8 +4,12 @@ defmodule EbaeWeb.SellController do
   alias Ebae.{Auctions, Auctions.Auction}
   alias EbaeWeb.Auth
 
-  def sell(conn, _) do
-    render(conn, "sell.html")
+  def sell(conn, params) do
+    render(conn, "sell.html", datetime: Map.get(params, "datetime", DateTime))
+  end
+
+  def sold(conn, params) do
+    render(conn, "sold.html", datetime: Map.get(params, "datetime", DateTime))
   end
 
   def new(conn, _) do

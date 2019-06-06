@@ -79,7 +79,10 @@ defmodule EbaeWeb.BuyUITest do
 
     test "displays auctions with current bid", %{conn: conn, user: user, other_user: other_user} do
       {:ok, auction} =
-        Auctions.create_auction(Map.put(@auction_attrs, "user_id", other_user.id), MockDateTimePast)
+        Auctions.create_auction(
+          Map.put(@auction_attrs, "user_id", other_user.id),
+          MockDateTimePast
+        )
 
       Auctions.create_bid(
         Map.merge(@bid_attrs, %{"user_id" => user.id, "auction_id" => auction.id})
@@ -94,7 +97,10 @@ defmodule EbaeWeb.BuyUITest do
 
     test "displays link to item bid creation", %{conn: conn, user: user, other_user: other_user} do
       {:ok, auction} =
-        Auctions.create_auction(Map.put(@auction_attrs, "user_id", other_user.id), MockDateTimePast)
+        Auctions.create_auction(
+          Map.put(@auction_attrs, "user_id", other_user.id),
+          MockDateTimePast
+        )
 
       conn = Auth.sign_in(conn, user)
       conn = get(conn, Routes.buy_path(conn, :buy), datetime: MockDateTimePresent)
@@ -107,9 +113,18 @@ defmodule EbaeWeb.BuyUITest do
       assert html_response(conn, 200) =~ "href=\"/buy/bids\""
     end
 
+    test "displays link to buyers won auctions", %{conn: conn, user: user} do
+      conn = Auth.sign_in(conn, user)
+      conn = get(conn, Routes.buy_path(conn, :buy))
+      assert html_response(conn, 200) =~ "href=\"/buy/won\""
+    end
+
     test "displays buyers bids", %{conn: conn, user: user, other_user: other_user} do
       {:ok, auction} =
-        Auctions.create_auction(Map.put(@auction_attrs, "user_id", other_user.id), MockDateTimePast)
+        Auctions.create_auction(
+          Map.put(@auction_attrs, "user_id", other_user.id),
+          MockDateTimePast
+        )
 
       {:ok, bid} =
         Auctions.create_bid(
@@ -126,9 +141,15 @@ defmodule EbaeWeb.BuyUITest do
 
     test "displays won auctions", %{conn: conn, user: user, other_user: other_user} do
       {:ok, auction} =
-        Auctions.create_auction(Map.put(@auction_attrs, "user_id", other_user.id), MockDateTimePast)
+        Auctions.create_auction(
+          Map.put(@auction_attrs, "user_id", other_user.id),
+          MockDateTimePast
+        )
 
-      Auctions.create_bid(Map.merge(@bid_attrs, %{"user_id" => user.id, "auction_id" => auction.id}))
+      Auctions.create_bid(
+        Map.merge(@bid_attrs, %{"user_id" => user.id, "auction_id" => auction.id})
+      )
+
       conn = Auth.sign_in(conn, user)
       conn = get(conn, Routes.buy_path(conn, :won), datetime: MockDateTimeFuture)
       assert html_response(conn, 200) =~ "some name"

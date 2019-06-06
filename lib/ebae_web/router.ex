@@ -40,6 +40,8 @@ defmodule EbaeWeb.Router do
 
     get "/", SellController, :sell
 
+    get "/sold", SellController, :sold
+
     resources "/", SellController, only: [:new, :create, :delete]
 
     get "/:id", SellController, :auction

@@ -7,7 +7,7 @@ defmodule EbaeWeb.BuyControllerTest do
   @invalid_offer_attrs %{"offer" => "not a number"}
   @nil_bid_attrs %{"offer" => nil}
 
-  defmodule MockDateTime do
+  defmodule MockDateTimePast do
     defdelegate compare(datetime1, datetime2), to: DateTime
 
     def utc_now do
@@ -76,7 +76,10 @@ defmodule EbaeWeb.BuyControllerTest do
 
     test "renders new bid form", %{conn: conn, user: user, other_user: other_user} do
       {:ok, auction} =
-        Auctions.create_auction(Map.put(@auction_attrs, "user_id", other_user.id), MockDateTime)
+        Auctions.create_auction(
+          Map.put(@auction_attrs, "user_id", other_user.id),
+          MockDateTimePast
+        )
 
       conn = Auth.sign_in(conn, user)
       conn = get(conn, Routes.buy_path(conn, :new, auction.id))
@@ -85,7 +88,7 @@ defmodule EbaeWeb.BuyControllerTest do
 
     test "unauthenticated if unauthenticated", %{conn: conn, user: user} do
       {:ok, auction} =
-        Auctions.create_auction(Map.put(@auction_attrs, "user_id", user.id), MockDateTime)
+        Auctions.create_auction(Map.put(@auction_attrs, "user_id", user.id), MockDateTimePast)
 
       conn = get(conn, Routes.buy_path(conn, :new, auction.id))
       assert text_response(conn, 401) =~ "unauthenticated"
@@ -97,7 +100,10 @@ defmodule EbaeWeb.BuyControllerTest do
 
     test "creates bid if data is valid", %{conn: conn, user: user, other_user: other_user} do
       {:ok, auction} =
-        Auctions.create_auction(Map.put(@auction_attrs, "user_id", other_user.id), MockDateTime)
+        Auctions.create_auction(
+          Map.put(@auction_attrs, "user_id", other_user.id),
+          MockDateTimePast
+        )
 
       conn = Auth.sign_in(conn, user)
       post(conn, Routes.buy_path(conn, :create, auction.id), bid: @bid_attrs)
@@ -113,7 +119,10 @@ defmodule EbaeWeb.BuyControllerTest do
       other_user: other_user
     } do
       {:ok, auction} =
-        Auctions.create_auction(Map.put(@auction_attrs, "user_id", other_user.id), MockDateTime)
+        Auctions.create_auction(
+          Map.put(@auction_attrs, "user_id", other_user.id),
+          MockDateTimePast
+        )
 
       conn = Auth.sign_in(conn, user)
       conn = post(conn, Routes.buy_path(conn, :create, auction.id), bid: @bid_attrs)
@@ -127,7 +136,10 @@ defmodule EbaeWeb.BuyControllerTest do
       other_user: other_user
     } do
       {:ok, auction} =
-        Auctions.create_auction(Map.put(@auction_attrs, "user_id", other_user.id), MockDateTime)
+        Auctions.create_auction(
+          Map.put(@auction_attrs, "user_id", other_user.id),
+          MockDateTimePast
+        )
 
       conn = Auth.sign_in(conn, user)
       conn = post(conn, Routes.buy_path(conn, :create, auction.id), bid: @invalid_offer_attrs)
@@ -137,7 +149,10 @@ defmodule EbaeWeb.BuyControllerTest do
 
     test "renders error when data is missing", %{conn: conn, user: user, other_user: other_user} do
       {:ok, auction} =
-        Auctions.create_auction(Map.put(@auction_attrs, "user_id", other_user.id), MockDateTime)
+        Auctions.create_auction(
+          Map.put(@auction_attrs, "user_id", other_user.id),
+          MockDateTimePast
+        )
 
       conn = Auth.sign_in(conn, user)
       conn = post(conn, Routes.buy_path(conn, :create, auction.id), bid: @nil_bid_attrs)

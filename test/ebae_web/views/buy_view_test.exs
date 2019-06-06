@@ -83,7 +83,11 @@ defmodule EbaeWeb.BuyViewTest do
       user: user,
       other_user: other_user
     } do
-      {:ok, auction} = Auctions.create_auction(Map.put(@auction_attrs, "user_id", other_user.id), MockDateTimePast)
+      {:ok, auction} =
+        Auctions.create_auction(
+          Map.put(@auction_attrs, "user_id", other_user.id),
+          MockDateTimePast
+        )
 
       Auctions.create_bid(
         Map.merge(@bid_attrs, %{"user_id" => user.id, "auction_id" => auction.id})
@@ -104,7 +108,10 @@ defmodule EbaeWeb.BuyViewTest do
       other_user: other_user
     } do
       {:ok, auction} =
-        Auctions.create_auction(Map.put(@auction_attrs, "user_id", other_user.id), MockDateTimePast)
+        Auctions.create_auction(
+          Map.put(@auction_attrs, "user_id", other_user.id),
+          MockDateTimePast
+        )
 
       Auctions.create_bid(
         Map.merge(@bid_attrs, %{"user_id" => user.id, "auction_id" => auction.id})
@@ -122,7 +129,10 @@ defmodule EbaeWeb.BuyViewTest do
 
     test "returns the highest bid", %{user: user, other_user: other_user} do
       {:ok, auction} =
-        Auctions.create_auction(Map.put(@auction_attrs, "user_id", other_user.id), MockDateTimePast)
+        Auctions.create_auction(
+          Map.put(@auction_attrs, "user_id", other_user.id),
+          MockDateTimePast
+        )
 
       Auctions.create_bid(
         Map.merge(@bid_attrs, %{"user_id" => user.id, "auction_id" => auction.id})

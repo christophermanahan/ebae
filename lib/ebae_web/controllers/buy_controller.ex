@@ -5,9 +5,7 @@ defmodule EbaeWeb.BuyController do
   alias EbaeWeb.Auth
 
   def buy(conn, params) do
-    render(conn, "buy.html",
-      datetime: Map.get(params, "datetime", DateTime) 
-    )
+    render(conn, "buy.html", datetime: Map.get(params, "datetime", DateTime))
   end
 
   def bids(conn, _) do
@@ -15,9 +13,7 @@ defmodule EbaeWeb.BuyController do
   end
 
   def won(conn, params) do
-    render(conn, "won.html",
-      datetime: Map.get(params, "datetime", DateTime) 
-    )
+    render(conn, "won.html", datetime: Map.get(params, "datetime", DateTime))
   end
 
   def new(conn, %{"id" => auction_id}) do

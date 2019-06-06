@@ -1,4 +1,5 @@
 <h1>Welcome seller <%= username(@conn) %></h1> 
+<h4><%= link("Sold auctions", to: Routes.sell_path(@conn, :sold), class: "nav-link") %></h4>
 <h4><%= link("Add listing", to: Routes.sell_path(@conn, :new), class: "nav-link") %></h4>
 <hr>
 <h2>Your current auctions</h2>
@@ -16,7 +17,7 @@
   <article class="column">
   </article>
 </section>
-<%= for auction <- auctions(@conn) do %>
+<%= for auction <- auctions(@conn, @datetime) do %>
   <section class="row">
     <article class="column">
       <p><%= link(auction.name, to: Routes.sell_path(@conn, :auction, auction.id), class: "nav-link") %></p>

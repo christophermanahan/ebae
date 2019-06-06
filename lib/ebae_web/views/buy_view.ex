@@ -14,7 +14,7 @@ defmodule EbaeWeb.BuyView do
     |> Auctions.get_buyers_auctions!(datetime)
   end
 
-  def won(conn, datetime \\DateTime) do
+  def won(conn, datetime \\ DateTime) do
     conn
     |> Auth.current_user()
     |> Auctions.won!(datetime)

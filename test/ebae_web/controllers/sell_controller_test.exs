@@ -4,11 +4,20 @@ defmodule EbaeWeb.SellControllerTest do
 
   alias Ebae.{Accounts, Auctions}
 
-  defmodule MockDateTime do
+  defmodule MockDateTimePast do
     defdelegate compare(datetime1, datetime2), to: DateTime
 
     def utc_now do
       {:ok, now} = DateTime.from_naive(~N[2018-01-01 10:00:00], "Etc/UTC")
+      now
+    end
+  end
+
+  defmodule MockDateTimePresent do
+    defdelegate compare(datetime1, datetime2), to: DateTime
+
+    def utc_now do
+      {:ok, now} = DateTime.from_naive(~N[2019-01-01 11:00:00], "Etc/UTC")
       now
     end
   end
@@ -70,13 +79,28 @@ defmodule EbaeWeb.SellControllerTest do
     end
   end
 
+  describe "sold" do
+    setup [:create_users]
+
+    test "renders sellers sold auctions", %{conn: conn, user: user} do
+      conn = Auth.sign_in(conn, user)
+      conn = get(conn, Routes.sell_path(conn, :sold))
+      assert html_response(conn, 200) =~ "Your sold auctions"
+    end
+  end
+
   describe "auction" do
     setup [:create_users]
 
     test "renders auction details page", %{conn: conn, user: user} do
       conn = Auth.sign_in(conn, user)
-      post(conn, Routes.sell_path(conn, :create), auction: @auction_attrs, datetime: MockDateTime)
-      [auction] = Auctions.get_sellers_auctions!(user)
+
+      post(conn, Routes.sell_path(conn, :create),
+        auction: @auction_attrs,
+        datetime: MockDateTimePast
+      )
+
+      [auction] = Auctions.get_sellers_auctions!(user, MockDateTimePresent)
       conn = get(conn, Routes.sell_path(conn, :auction, auction.id))
       assert html_response(conn, 200) =~ "Auction details"
     end
@@ -89,7 +113,10 @@ defmodule EbaeWeb.SellControllerTest do
       conn = Auth.sign_in(conn, user)
 
       {:ok, auction} =
-        Auctions.create_auction(Map.put(@create_attrs, "user_id", other_user.id), MockDateTime)
+        Auctions.create_auction(
+          Map.put(@create_attrs, "user_id", other_user.id),
+          MockDateTimePast
+        )
 
       conn = get(conn, Routes.sell_path(conn, :auction, auction.id))
       assert get_flash(conn, :error) == "Invalid auction"
@@ -117,8 +144,13 @@ defmodule EbaeWeb.SellControllerTest do
 
     test "creates auction if data is valid", %{conn: conn, user: user} do
       conn = Auth.sign_in(conn, user)
-      post(conn, Routes.sell_path(conn, :create), auction: @auction_attrs, datetime: MockDateTime)
-      [auction] = Auctions.get_sellers_auctions!(user)
+
+      post(conn, Routes.sell_path(conn, :create),
+        auction: @auction_attrs,
+        datetime: MockDateTimePast
+      )
+
+      [auction] = Auctions.get_sellers_auctions!(user, MockDateTimePresent)
       {:ok, start} = DateTime.from_naive(~N[2019-01-01 10:00:00], "Etc/UTC")
       {:ok, finish} = DateTime.from_naive(~N[2019-02-01 10:00:00], "Etc/UTC")
       assert auction.start == start
@@ -135,7 +167,7 @@ defmodule EbaeWeb.SellControllerTest do
       conn =
         post(conn, Routes.sell_path(conn, :create),
           auction: @auction_attrs,
-          datetime: MockDateTime
+          datetime: MockDateTimePast
         )
 
       assert get_flash(conn, :info) == "Listing successfully added"
@@ -148,7 +180,7 @@ defmodule EbaeWeb.SellControllerTest do
       conn =
         post(conn, Routes.sell_path(conn, :create),
           auction: @price_invalid_attrs,
-          datetime: MockDateTime
+          datetime: MockDateTimePast
         )
 
       assert get_flash(conn, :error) == "Form submission invalid"
@@ -168,16 +200,26 @@ defmodule EbaeWeb.SellControllerTest do
 
     test "deletes auction", %{conn: conn, user: user} do
       conn = Auth.sign_in(conn, user)
-      post(conn, Routes.sell_path(conn, :create), auction: @auction_attrs, datetime: MockDateTime)
-      [auction] = Auctions.get_sellers_auctions!(user)
+
+      post(conn, Routes.sell_path(conn, :create),
+        auction: @auction_attrs,
+        datetime: MockDateTimePast
+      )
+
+      [auction] = Auctions.get_sellers_auctions!(user, MockDateTimePresent)
       delete(conn, Routes.sell_path(conn, :delete, auction.id))
-      assert Auctions.get_sellers_auctions!(user) == []
+      assert Auctions.get_sellers_auctions!(user, MockDateTimePresent) == []
     end
 
     test "renders seller index if delete is successful", %{conn: conn, user: user} do
       conn = Auth.sign_in(conn, user)
-      post(conn, Routes.sell_path(conn, :create), auction: @auction_attrs, datetime: MockDateTime)
-      [auction] = Auctions.get_sellers_auctions!(user)
+
+      post(conn, Routes.sell_path(conn, :create),
+        auction: @auction_attrs,
+        datetime: MockDateTimePast
+      )
+
+      [auction] = Auctions.get_sellers_auctions!(user, MockDateTimePresent)
       conn = delete(conn, Routes.sell_path(conn, :delete, auction.id))
       assert get_flash(conn, :info) == "Listing successfully deleted"
       assert redirected_to(conn) == Routes.sell_path(conn, :sell)
