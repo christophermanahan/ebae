@@ -1,7 +1,8 @@
 defmodule Ebae.AuctionsTest do
   use Ebae.DataCase
+  use Bamboo.Test, shared: :true
 
-  alias Ebae.{Auctions, Accounts, Auctions.Auction, Auctions.Bid}
+  alias Ebae.{Auctions, Accounts, Auctions.Auction, Auctions.Bid, Email}
 
   defmodule MockDateTimePast do
     defdelegate compare(datetime1, datetime2), to: DateTime
@@ -27,6 +28,12 @@ defmodule Ebae.AuctionsTest do
     def utc_now do
       {:ok, now} = DateTime.from_naive(~N[2020-01-01 10:00:00], "Etc/UTC")
       now
+    end
+  end
+
+  defmodule MockScheduler do
+    def notify(auction, worker) do
+      worker.perform(auction)
     end
   end
 
@@ -255,6 +262,17 @@ defmodule Ebae.AuctionsTest do
       assert auction.name == auction_one.name
     end
 
+    test "highest_bidder", %{
+      user: user,
+      other_user: other_user
+    } do
+      {:ok, auction} =
+        Auctions.create_auction(Map.put(@auction_attrs, "user_id", user.id), MockDateTimePast)
+      fixture(:bid, @bid_attrs, other_user.id, auction.id)
+
+      assert Auctions.highest_bidder(auction.id) == other_user
+    end
+
     test "create_auction/1 with valid data creates an auction", %{user: user} do
       assert {:ok, %Auction{} = auction} =
                Auctions.create_auction(
@@ -272,8 +290,20 @@ defmodule Ebae.AuctionsTest do
       assert auction.user_id == user.id
     end
 
+    @tag :skip
+    test "create_auction/1 with valid data sets up email notification", %{user: user} do
+      {:ok, auction} = Auctions.create_auction(
+        Map.put(@auction_attrs, "user_id", user.id),
+        MockDateTimePast,
+        MockScheduler
+      )
+
+      expected_email = Email.won_email(user, auction.name)
+      assert_delivered_email expected_email
+   end
+
     test "create_auction/1 with invalid start date returns error changeset", %{user: user} do
-      assert {:error, changeset} =
+      assert {:error, :datetime} =
                Auctions.create_auction(
                  Map.put(@invalid_auction_start, "user_id", user.id),
                  MockDateTimePast

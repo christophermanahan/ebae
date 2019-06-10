@@ -2,7 +2,7 @@ defmodule Ebae.Auctions do
   import Ecto.Query, warn: false
 
   alias Ebae.Repo
-  alias Ebae.{Auctions.Auction, Auctions.Bid, Accounts.User}
+  alias Ebae.{Auctions.Auction, Auctions.Bid, Accounts, Accounts.User, Scheduler, EmailWorker}
 
   def get_auction!(id) do
     Auction
@@ -48,11 +48,26 @@ defmodule Ebae.Auctions do
     |> Enum.filter(fn auction -> Enum.count(auction.bids) > 0 end)
   end
 
-  def create_auction(attrs, datetime \\ DateTime) do
+  def highest_bidder(auction_id) do
+    auction_id
+    |> get_auction!()
+    |> Map.get(:bids)
+    |> Enum.at(0)
+    |> Map.get(:user_id)
+    |> Accounts.get_user!()
+  end
+
+  def create_auction(attrs, datetime \\ DateTime, scheduler \\ Scheduler) do
     if validate_datetimes(attrs, datetime) do
-      %Auction{}
+      result = %Auction{}
       |> Auction.changeset(attrs)
       |> Repo.insert()
+      # case result do
+      #   {:ok, auction} ->
+      #     scheduler.notify(auction)
+      #     result
+      #   error -> error
+      # end
     else
       {:error, :datetime}
     end
